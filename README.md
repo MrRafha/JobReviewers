@@ -406,31 +406,42 @@ git reset --soft HEAD~1
 
 ```
 devreview/
-├── app/                    # Next.js App Router
+├── app/                    # Next.js App Router (rotas)
+│   ├── (auth)/            # Rotas de autenticação
+│   ├── companies/         # Páginas de empresas
+│   ├── reviews/           # Páginas de reviews
+│   ├── admin/             # Painel administrativo
 │   ├── api/               # API Routes
-│   │   └── companies/     # Endpoints de empresas
 │   ├── globals.css        # Estilos globais
 │   ├── layout.tsx         # Layout principal
 │   └── page.tsx           # Página inicial
-├── lib/                   # Utilitários e configs
-│   └── prisma.ts          # Cliente Prisma
+├── components/            # Componentes React
+│   ├── ui/               # Componentes base (shadcn/ui)
+│   ├── features/         # Componentes de funcionalidades
+│   └── layout/           # Componentes de layout
+├── hooks/                 # Custom React Hooks
+├── types/                 # TypeScript types
+├── utils/                 # Funções utilitárias
+├── lib/                   # Bibliotecas e configs
+│   ├── services/         # Camada de serviço
+│   ├── validations/      # Schemas de validação
+│   └── prisma.ts         # Cliente Prisma
 ├── prisma/                # Banco de dados
 │   ├── schema.prisma      # Schema do banco
 │   ├── migrations/        # Histórico de migrations
 │   └── seed.ts            # Dados iniciais
+├── docs/                  # Documentação
+│   ├── DESIGN_SYSTEM.md   # Design system
+│   └── FRONTEND_STRUCTURE.md  # Estrutura do frontend
 ├── public/                # Arquivos estáticos
 ├── .vscode/               # Configurações do VS Code
-│   ├── settings.json      # Formatação automática
-│   └── extensions.json    # Extensões recomendadas
 ├── .env                   # Variáveis de ambiente (não commitar!)
 ├── .env.example           # Exemplo de variáveis
-├── .gitignore             # Arquivos ignorados pelo Git
-├── .prettierrc            # Configuração do Prettier
-├── .editorconfig          # Configurações do editor
-├── eslint.config.mjs      # Configuração do ESLint
 ├── package.json           # Dependências e scripts
 └── README.md              # Este arquivo
 ```
+
+> 📖 **Documentação completa da estrutura**: Ver [docs/FRONTEND_STRUCTURE.md](docs/FRONTEND_STRUCTURE.md)
 
 ---
 
