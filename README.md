@@ -199,8 +199,9 @@ Antes de começar, você precisa ter instalado:
 #### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/MrRafha/JobReviewers.git
-cd JobReviewers
+# Clone o repositório (URL fornecida pelo administrador)
+git clone <url-do-repositorio>
+cd devreview
 ```
 
 #### 2. Instale as dependências
@@ -340,7 +341,7 @@ git push -u origin feature/nome-da-feature
 
 #### 5. Abra um Pull Request (PR)
 
-1. Acesse https://github.com/MrRafha/JobReviewers/pulls
+1. Acesse a aba "Pull Requests" no GitHub
 2. Clique em "New Pull Request"
 3. Selecione: `development` ← `feature/nome-da-feature`
 4. Descreva o que foi feito
@@ -486,11 +487,11 @@ npx prisma generate
 
 ## 📞 Dúvidas?
 
-- Abra uma [Issue](https://github.com/MrRafha/JobReviewers/issues)
+- Abra uma Issue no repositório
 - Pergunte no grupo do time
 
 ---
 
 ## 📄 Licença
 
-COPÍA NÃO COMÉDIA.
+Projeto de uso interno sem licença pública definida.
