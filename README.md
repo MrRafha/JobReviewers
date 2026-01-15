@@ -1,10 +1,10 @@
-# DevReview (MVP) — Plataforma anônima de reviews de empresas
+# JobReviewers (MVP) — Plataforma anônima de reviews de empresas
 
-> Um espaço para desenvolvedores compartilharem experiências profissionais **sem se revelar**, ajudando outras pessoas a decidirem se vale a pena entrar em determinada empresa.
+> Um espaço para profissionais compartilharem experiências de trabalho **sem se revelar**, ajudando outras pessoas a decidirem se vale a pena entrar em determinada empresa.
 
 ## 🎯 Visão
 
-Criar uma plataforma onde devs possam:
+Criar uma plataforma onde profissionais possam:
 
 - avaliar empresas de forma **anônima/pseudônima**
 - compartilhar experiências sobre rotina, cultura, gestão e processo seletivo
@@ -69,7 +69,7 @@ Criar uma plataforma onde devs possam:
 
 É **proibido**:
 
-- citar nomes de pessoas (chefes, RH, colegas, donos)
+- citar nomes de pessoas (chefes, RH, colegas, gestores)
 - expor dados pessoais (telefone, e-mail, CPF, endereço)
 - fazer acusações criminais sem evidências
 - publicar segredos internos, dados de clientes, ou documentos privados
@@ -80,6 +80,7 @@ Reviews podem criticar:
 - cultura
 - gestão
 - carga de trabalho
+- benefícios
 - salário (somente em **faixas**)
 
 ---
