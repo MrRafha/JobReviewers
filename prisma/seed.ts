@@ -5,7 +5,12 @@ const prisma = new PrismaClient();
 async function main() {
   await prisma.company.createMany({
     data: [
-      { name: "Empresa Exemplo", slug: "empresa-exemplo", city: "Picos", state: "PI" },
+      {
+        name: "Empresa Exemplo",
+        slug: "empresa-exemplo",
+        city: "Picos",
+        state: "PI",
+      },
       { name: "DevTech", slug: "devtech", city: "Picos", state: "PI" },
       { name: "CodeWorks", slug: "codeworks", city: "Picos", state: "PI" },
     ],
