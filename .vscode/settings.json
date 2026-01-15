@@ -3,6 +3,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
+    // Disable VS Code's organizeImports; Prettier (with @trivago/prettier-plugin-sort-imports) handles import sorting.
     "source.organizeImports": "never"
   },
   "[typescript]": {
