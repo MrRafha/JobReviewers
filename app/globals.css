@@ -1,8 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Backgrounds */
+  --bg-0: #F7F9FC;
+  --bg-1: #FFFFFF;
+  --bg-2: #F1F5F9;
+  
+  /* Borders */
+  --border: #E2E8F0;
+  --divider: #E2E8F0;
+  
+  /* Text */
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  
+  /* Brand Blue (Confiança) */
+  --brand-blue: #2563EB;
+  --brand-blue-hover: #1D4ED8;
+  --brand-blue-bg: #DBEAFE;
+  
+  /* Brand Green (Ação/Positivo) */
+  --brand-green: #22C55E;
+  --brand-green-hover: #16A34A;
+  --brand-green-bg: #DCFCE7;
+  
+  /* Alert (apenas para denúncias) */
+  --alert-orange: #EA580C;
+  --alert-orange-bg: #FFEDD5;
+  --info-bg: #DBEAFE;
+  
+  /* Error */
+  --error: #EF4444;
+  --error-hover: #DC2626;
+  --error-bg: #FEE2E2;
+  
+  /* Gradiente Hero Confiança */
+  --gradient-hero: linear-gradient(90deg, #2563EB 0%, #22C55E 100%);
+
+  /* Legacy compatibility */
+  --background: #F7F9FC;
+  --foreground: #0F172A;
 }
 
 @theme inline {
@@ -14,13 +52,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0F172A;
+    --foreground: #F1F5F9;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-0);
+  color: var(--text-primary);
   font-family: Arial, Helvetica, sans-serif;
 }
