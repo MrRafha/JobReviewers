@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 // Exemplo de página de empresa
 // URL: /companies/google ou /companies/123
@@ -15,9 +15,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-4">
-        Empresa ID: {params.id}
-      </h1>
+      <h1 className="text-3xl font-bold mb-4">Empresa ID: {params.id}</h1>
 
       {/* Info da empresa */}
       <div className="bg-white rounded-lg shadow p-6 mb-8">

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export default function NewReviewPage() {
   // TODO: Pegar companyId dos query params
@@ -13,9 +13,7 @@ export default function NewReviewPage() {
         {/* Cargo e Senioridade */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Cargo/Área
-            </label>
+            <label className="block text-sm font-medium mb-2">Cargo/Área</label>
             <input
               type="text"
               placeholder="Frontend Developer"

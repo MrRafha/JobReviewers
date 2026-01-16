@@ -9,8 +9,9 @@ npx shadcn@latest init
 ```
 
 Componentes a adicionar:
+
 - Button
-- Card  
+- Card
 - Input
 - Badge
 - Toast
