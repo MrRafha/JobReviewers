@@ -5,7 +5,7 @@ export interface User {
   email: string;
   handle: string;
   verifiedEmail: boolean;
-  role: 'USER' | 'ADMIN';
+  role: "USER" | "ADMIN";
   createdAt: Date;
 }
 
@@ -27,9 +27,9 @@ export interface Review {
   companyId: string;
   userId: string;
   roleArea: string;
-  seniority: 'jr' | 'pl' | 'sr';
-  contractType: 'clt' | 'pj' | 'estagio';
-  workMode: 'remoto' | 'hibrido' | 'presencial';
+  seniority: "jr" | "pl" | "sr";
+  contractType: "clt" | "pj" | "estagio";
+  workMode: "remoto" | "hibrido" | "presencial";
   year: number;
   ratingOverall: number;
   pros: string;
@@ -55,9 +55,9 @@ export interface Report {
 export interface CreateReviewInput {
   companyId: string;
   roleArea: string;
-  seniority: 'jr' | 'pl' | 'sr';
-  contractType: 'clt' | 'pj' | 'estagio';
-  workMode: 'remoto' | 'hibrido' | 'presencial';
+  seniority: "jr" | "pl" | "sr";
+  contractType: "clt" | "pj" | "estagio";
+  workMode: "remoto" | "hibrido" | "presencial";
   year: number;
   ratingOverall: number;
   pros: string;
