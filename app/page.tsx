@@ -19,28 +19,81 @@ export default function Home() {
 
   // Dados mockados
   const mockCompanies = [
-    {
-      name: "Nubank",
-      location: "São Paulo, SP",
-      rating: 4.5,
-      reviewCount: 127,
-    },
-    { name: "IFPI", location: "Teresina, PI", rating: 3.8, reviewCount: 45 },
-    { name: "Samsung", location: "Campinas, SP", rating: 4.2, reviewCount: 89 },
-    {
-      name: "Mercado Livre",
-      location: "São Paulo, SP",
-      rating: 4.1,
-      reviewCount: 203,
-    },
-    { name: "iFood", location: "Osasco, SP", rating: 3.9, reviewCount: 156 },
-    { name: "Ambev", location: "São Paulo, SP", rating: 4.0, reviewCount: 78 },
-    { name: "Globo", location: "Rio de Janeiro, RJ", rating: 3.7, reviewCount: 34 },
-    { name: "Totvs", location: "São Paulo, SP", rating: 4.3, reviewCount: 92 },
-    { name: "XP Investimentos", location: "São Paulo, SP", rating: 4.4, reviewCount: 110 },
-  ];
+  {
+    id: 1,
+    name: "Nubank",
+    slug: "nubank",
+    location: "São Paulo, SP",
+    rating: 4.5,
+    reviewCount: 127,
+  },
+  {
+    id: 2,
+    name: "IFPI",
+    slug: "ifpi",
+    location: "Teresina, PI",
+    rating: 3.8,
+    reviewCount: 45,
+  },
+  {
+    id: 3,
+    name: "Samsung",
+    slug: "samsung",
+    location: "Campinas, SP",
+    rating: 4.2,
+    reviewCount: 89,
+  },
+  {
+    id: 4,
+    name: "Mercado Livre",
+    slug: "mercado-livre",
+    location: "São Paulo, SP",
+    rating: 4.1,
+    reviewCount: 203,
+  },
+  {
+    id: 5,
+    name: "iFood",
+    slug: "ifood",
+    location: "Osasco, SP",
+    rating: 3.9,
+    reviewCount: 156,
+  },
+  {
+    id: 6,
+    name: "Ambev",
+    slug: "ambev",
+    location: "São Paulo, SP",
+    rating: 4.0,
+    reviewCount: 78,
+  },
+  {
+    id: 7,
+    name: "Globo",
+    slug: "globo",
+    location: "Rio de Janeiro, RJ",
+    rating: 3.7,
+    reviewCount: 34,
+  },
+  {
+    id: 8,
+    name: "Totvs",
+    slug: "totvs",
+    location: "São Paulo, SP",
+    rating: 4.3,
+    reviewCount: 92,
+  },
+  {
+    id: 9,
+    name: "XP Investimentos",
+    slug: "xp-investimentos",
+    location: "São Paulo, SP",
+    rating: 4.4,
+    reviewCount: 110,
+  },
+];
 
-  return (
+    return (
     <div className="min-h-screen bg-[#F7F9FC]">
       {/* Seção Hero com background escuro */}
       <div className="bg-[#2B2D31] rounded-b-[40px] shadow-xl h-[380px] relative overflow-hidden">
@@ -226,14 +279,19 @@ export default function Home() {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             style={{ filter: "drop-shadow(0 2px 8px rgba(37, 99, 235, 0.08))" }}
           >
-            {mockCompanies.map((company, index) => (
-              <CompanyCard
-                key={index}
-                name={company.name}
-                location={company.location}
-                rating={company.rating}
-                reviewCount={company.reviewCount}
-              />
+            {mockCompanies.map((company) =>(
+              <Link 
+                key={company.slug} 
+                href={`/empresa/${company.slug}`}
+                className="block transition-transform hover:-translate-y-1"
+              >
+                <CompanyCard
+                  name={company.name}
+                  location={company.location}
+                  rating={company.rating}
+                  reviewCount={company.reviewCount}
+                />
+              </Link>
             ))}
           </div>
         </div>
