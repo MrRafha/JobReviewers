@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implementar login com NextAuth
-    console.log('Login:', { email, password });
+    console.log("Login:", { email, password });
   };
 
   return (
@@ -29,9 +29,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Email
-              </label>
+              <label className="block text-sm font-medium mb-2">Email</label>
               <input
                 type="email"
                 value={email}
@@ -43,9 +41,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Senha
-              </label>
+              <label className="block text-sm font-medium mb-2">Senha</label>
               <input
                 type="password"
                 value={password}
@@ -65,7 +61,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-sm text-gray-600 mt-6">
-            Não tem conta?{' '}
+            Não tem conta?{" "}
             <a href="/register" className="text-green-600 hover:underline">
               Criar conta
             </a>

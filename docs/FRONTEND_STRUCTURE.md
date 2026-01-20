@@ -92,14 +92,17 @@ devreview/
 ### `app/` - Rotas (App Router)
 
 **Grupos de rotas**: Use `()` para agrupar rotas sem afetar a URL
+
 - `(auth)/` - login, register (sem navbar)
 - `(dashboard)/` - rotas autenticadas
 
 **Rotas dinâmicas**: Use `[]` para parâmetros
+
 - `companies/[id]/` - `/companies/123`
 - `reviews/[id]/edit/` - `/reviews/456/edit`
 
 **API Routes**: `app/api/**/route.ts`
+
 - `GET`, `POST`, `PATCH`, `DELETE`
 
 ---
@@ -107,27 +110,30 @@ devreview/
 ### `components/` - Componentes React
 
 #### `ui/` - Componentes Base
+
 Componentes genéricos e reutilizáveis (design system)
 
 ```tsx
 // Button.tsx
-export function Button({ variant, children, ...props }) { }
+export function Button({ variant, children, ...props }) {}
 ```
 
 #### `features/` - Componentes de Funcionalidade
+
 Componentes específicos do domínio
 
 ```tsx
 // ReviewCard.tsx
-export function ReviewCard({ review }: { review: Review }) { }
+export function ReviewCard({ review }: { review: Review }) {}
 ```
 
 #### `layout/` - Componentes de Layout
+
 Estrutura da página (Navbar, Footer, etc)
 
 ```tsx
 // Navbar.tsx
-export function Navbar() { }
+export function Navbar() {}
 ```
 
 ---
@@ -149,6 +155,7 @@ export function useAuth() {
 ### `lib/` - Bibliotecas e Configurações
 
 #### `services/` - Camada de Serviço
+
 Lógica de negócio e acesso a dados
 
 ```tsx
@@ -159,6 +166,7 @@ export async function getCompanies() {
 ```
 
 #### `validations/` - Schemas de Validação
+
 Validação com Zod
 
 ```tsx
@@ -223,6 +231,7 @@ Page (app/) → Hook (hooks/) → Service (lib/services/) → Prisma (lib/prisma
 ### Imports
 
 Ordem de imports:
+
 1. React / Next.js
 2. Bibliotecas externas
 3. Componentes internos
@@ -231,22 +240,26 @@ Ordem de imports:
 6. Estilos
 
 ```tsx
-import { useState } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
-import { useAuth } from '@/hooks/useAuth';
-import { formatDate } from '@/utils/date';
-import type { Company } from '@/types';
+import { useState } from "react";
+
+import Link from "next/link";
+
+import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/hooks/useAuth";
+import type { Company } from "@/types";
+import { formatDate } from "@/utils/date";
 ```
 
 ### Server vs Client Components
 
 **Server Components (padrão)**:
+
 - Buscar dados
 - Acessar backend diretamente
 - Renderizar conteúdo estático
 
 **Client Components (`"use client"`)**:
+
 - Interatividade (onClick, onChange)
 - Hooks (useState, useEffect)
 - Browser APIs
@@ -256,23 +269,27 @@ import type { Company } from '@/types';
 ## 🔄 Próximos Passos
 
 ### Fase 1: Setup Base
+
 - [ ] Instalar shadcn/ui
 - [ ] Configurar tokens CSS no `globals.css`
 - [ ] Criar componentes base (Button, Card, Input)
 
 ### Fase 2: Componentes de Features
+
 - [ ] CompanyCard
 - [ ] ReviewCard
 - [ ] ReviewForm
 - [ ] RatingStars
 
 ### Fase 3: Páginas
+
 - [ ] Home (lista de empresas)
 - [ ] Página da empresa
 - [ ] Criar review
 - [ ] Painel admin
 
 ### Fase 4: Auth & Services
+
 - [ ] Setup NextAuth
 - [ ] Services de companies/reviews
 - [ ] Middleware de autenticação
