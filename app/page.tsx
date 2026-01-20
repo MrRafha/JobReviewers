@@ -8,6 +8,8 @@ import CompanyCard from "@/components/CompanyCard";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [isNewReviewExpanded, setIsNewReviewExpanded] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +35,9 @@ export default function Home() {
     },
     { name: "iFood", location: "Osasco, SP", rating: 3.9, reviewCount: 156 },
     { name: "Ambev", location: "São Paulo, SP", rating: 4.0, reviewCount: 78 },
+    { name: "Globo", location: "Rio de Janeiro, RJ", rating: 3.7, reviewCount: 34 },
+    { name: "Totvs", location: "São Paulo, SP", rating: 4.3, reviewCount: 92 },
+    { name: "XP Investimentos", location: "São Paulo, SP", rating: 4.4, reviewCount: 110 },
   ];
 
   return (
@@ -71,34 +76,142 @@ export default function Home() {
               Reviews anônimas e moderadas sobre empresas.
             </p>
 
-            {/* Barra de pesquisa */}
-            <form onSubmit={handleSearch} className="w-full max-w-2xl">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Pesquisar empresa (ex.: Nubank, IFPI, Samsung...)"
-                  className="w-full px-6 py-6 pl-12 text-base bg-white rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2563EB] shadow-lg placeholder:text-[#64748B] text-[#0F172A] border border-[#E2E8F0]"
-                />
-                {/* Ícone de busca */}
-                <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                  <svg
-                    className="w-5 h-5 text-[#64748B]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
+            {/* Barra de pesquisa e botão de nova review - Centralizados e dinâmicos */}
+            <div className="w-full max-w-2xl flex items-center justify-center gap-3">
+              {/* Barra de pesquisa - Compacta e expansível */}
+              <form 
+                onSubmit={handleSearch} 
+                className={`transition-all duration-600 ease-in-out ${
+                  isSearchExpanded ? "flex-1" : "flex-none"
+                }`}
+              >
+                <div
+                  className={`relative transition-all duration-600 ease-in-out ${
+                    isSearchExpanded ? "w-full" : "w-16"
+                  }`}
+                  onMouseEnter={() => {
+                    setIsSearchExpanded(true);
+                    setIsNewReviewExpanded(false);
+                  }}
+                  onMouseLeave={() => {
+                    if (!searchQuery) setIsSearchExpanded(false);
+                  }}
+                >
+                  {/* Ícone de busca - Aparece quando compactado */}
+                  {!isSearchExpanded && (
+                    <button
+                      type="button"
+                      onClick={() => setIsSearchExpanded(true)}
+                      className="w-16 h-16 bg-white/[0.01] backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center shadow-lg hover:scale-105 hover:bg-white/[0.08] transition-all"
+                    >
+                      <svg
+                        className="w-7 h-7 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                    </button>
+                  )}
+
+                  {/* Input expandido */}
+                  {isSearchExpanded && (
+                    <div className="relative animate-in fade-in slide-in-from-left-2 duration-800">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Pesquisar empresa (ex.: Nubank, IFPI, Samsung...)"
+                        className="w-full px-5 py-4 pl-12 text-base bg-white/10 backdrop-blur-md rounded-full focus:outline-none focus:ring-2 focus:ring-white/30 shadow-lg placeholder:text-white/60 text-white border border-white/20"
+                        autoFocus
+                      />
+                      {/* Ícone de busca dentro do input */}
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                        <svg
+                          className="w-5 h-5 text-white/70"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </form>
+              </form>
+
+              {/* Botão de Nova Review - Expansível */}
+              <Link 
+                href="/reviews/new"
+                className={`transition-all duration-600 ease-in-out ${
+                  isNewReviewExpanded ? "flex-1" : "flex-none"
+                }`}
+              >
+                <div
+                  className={`relative transition-all duration-800 ease-in-out ${
+                    isNewReviewExpanded ? "w-full" : "w-16"
+                  }`}
+                  onMouseEnter={() => {
+                    setIsNewReviewExpanded(true);
+                    setIsSearchExpanded(false);
+                  }}
+                  onMouseLeave={() => setIsNewReviewExpanded(false)}
+                >
+                  {/* Ícone compacto */}
+                  {!isNewReviewExpanded && (
+                    <div className="w-16 h-16 bg-[#22C55E]/[0.01] backdrop-blur-sm border border-[#22C55E]/20 rounded-full flex items-center justify-center shadow-lg hover:scale-105 hover:bg-[#22C55E]/[0.08] transition-all cursor-pointer">
+                      <svg
+                        className="w-6 h-6 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                        />
+                      </svg>
+                    </div>
+                  )}
+
+                  {/* Botão expandido */}
+                  {isNewReviewExpanded && (
+                    <div className="w-full h-16 bg-[#22C55E]/[0.03] backdrop-blur-md border border-[#22C55E]/20 rounded-full flex items-center px-5 shadow-lg hover:bg-[#22C55E]/[0.08] transition-all cursor-pointer overflow-hidden">
+                      <svg
+                        className="w-5 h-5 text-white flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                        />
+                      </svg>
+                      <span className="text-white font-medium text-base whitespace-nowrap ml-3 animate-in fade-in slide-in-from-left-3 duration-500 delay-100">
+                        Escrever nova review
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
