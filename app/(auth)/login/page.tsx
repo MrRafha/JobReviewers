@@ -1,9 +1,10 @@
 "use client";
 
+import { Suspense, useState } from "react";
+
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
-import { Suspense, useState } from "react";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -115,7 +116,13 @@ export default function LoginPage() {
         <div className="rounded-lg bg-white p-8 shadow-md">
           <h2 className="mb-6 text-2xl font-bold">Login</h2>
 
-          <Suspense fallback={<div className="py-8 text-center text-gray-400">Carregando...</div>}>
+          <Suspense
+            fallback={
+              <div className="py-8 text-center text-gray-400">
+                Carregando...
+              </div>
+            }
+          >
             <LoginForm />
           </Suspense>
         </div>

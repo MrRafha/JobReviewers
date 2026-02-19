@@ -1,5 +1,6 @@
-import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+
+import { auth } from "@/auth";
 
 const publicRoutes = ["/companies", "/login", "/register"];
 
@@ -33,7 +34,7 @@ export default auth((req) => {
   if (!isLoggedIn) {
     const callbackUrl = encodeURIComponent(pathname);
     return NextResponse.redirect(
-      new URL(`/login?callbackUrl=${callbackUrl}`, req.url),
+      new URL(`/login?callbackUrl=${callbackUrl}`, req.url)
     );
   }
 
