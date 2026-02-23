@@ -251,14 +251,18 @@ export default function Home() {
           ) : (
             <div
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              style={{ filter: "drop-shadow(0 2px 8px rgba(37, 99, 235, 0.08))" }}
+              style={{
+                filter: "drop-shadow(0 2px 8px rgba(37, 99, 235, 0.08))",
+              }}
             >
               {companies.map((company) => (
                 <CompanyCard
                   key={company.id}
                   name={company.name}
                   slug={company.slug}
-                  location={[company.city, company.state].filter(Boolean).join(", ")}
+                  location={[company.city, company.state]
+                    .filter(Boolean)
+                    .join(", ")}
                   rating={company.averageRating}
                   reviewCount={company.reviewCount}
                 />

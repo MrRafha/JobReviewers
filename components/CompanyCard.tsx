@@ -16,7 +16,10 @@ export default function CompanyCard({
   reviewCount,
 }: CompanyCardProps) {
   return (
-    <Link href={`/companies/${slug}`} className="bg-white border border-[#E2E8F0] rounded-2xl p-6 h-48 transition-all hover:scale-105 hover:shadow-lg cursor-pointer block">
+    <Link
+      href={`/companies/${slug}`}
+      className="bg-white border border-[#E2E8F0] rounded-2xl p-6 h-48 transition-all hover:scale-105 hover:shadow-lg cursor-pointer block"
+    >
       <div className="flex flex-col h-full justify-between">
         <div>
           <h3 className="text-xl font-semibold text-[#0F172A] mb-2">{name}</h3>
