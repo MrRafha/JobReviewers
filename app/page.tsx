@@ -37,9 +37,19 @@ export default function Home() {
     },
     { name: "iFood", location: "Osasco, SP", rating: 3.9, reviewCount: 156 },
     { name: "Ambev", location: "São Paulo, SP", rating: 4.0, reviewCount: 78 },
-    { name: "Globo", location: "Rio de Janeiro, RJ", rating: 3.7, reviewCount: 34 },
+    {
+      name: "Globo",
+      location: "Rio de Janeiro, RJ",
+      rating: 3.7,
+      reviewCount: 34,
+    },
     { name: "Totvs", location: "São Paulo, SP", rating: 4.3, reviewCount: 92 },
-    { name: "XP Investimentos", location: "São Paulo, SP", rating: 4.4, reviewCount: 110 },
+    {
+      name: "XP Investimentos",
+      location: "São Paulo, SP",
+      rating: 4.4,
+      reviewCount: 110,
+    },
   ];
 
   return (
@@ -91,8 +101,8 @@ export default function Home() {
             {/* Barra de pesquisa e botão de nova review - Centralizados e dinâmicos */}
             <div className="w-full max-w-2xl flex items-center justify-center gap-3">
               {/* Barra de pesquisa - Compacta e expansível */}
-              <form 
-                onSubmit={handleSearch} 
+              <form
+                onSubmit={handleSearch}
                 className={`transition-all duration-600 ease-in-out ${
                   isSearchExpanded ? "flex-1" : "flex-none"
                 }`}
@@ -165,7 +175,7 @@ export default function Home() {
               </form>
 
               {/* Botão de Nova Review - Expansível */}
-              <Link 
+              <Link
                 href="/reviews/new"
                 className={`transition-all duration-600 ease-in-out ${
                   isNewReviewExpanded ? "flex-1" : "flex-none"
