@@ -1,56 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 import CompanyCard from "@/components/CompanyCard";
 
+interface CompanyData {
+  id: string;
+  name: string;
+  slug: string;
+  city?: string;
+  state?: string;
+  reviewCount: number;
+  averageRating: number;
+}
+
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isNewReviewExpanded, setIsNewReviewExpanded] = useState(false);
   const { data: session } = useSession();
+  const [companies, setCompanies] = useState<CompanyData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Buscar empresas reais da API
+  useEffect(() => {
+    async function fetchCompanies() {
+      try {
+        const query = searchQuery.trim()
+          ? `?search=${encodeURIComponent(searchQuery.trim())}`
+          : "?limit=12";
+        const res = await fetch(`/api/companies${query}`);
+        if (res.ok) {
+          const data = await res.json();
+          setCompanies(data);
+        }
+      } catch {
+        console.error("Erro ao buscar empresas");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    const debounce = setTimeout(fetchCompanies, 300);
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implementar busca de empresas
-    console.log("Buscar:", searchQuery);
   };
-
-  // Dados mockados
-  const mockCompanies = [
-    {
-      name: "Nubank",
-      location: "São Paulo, SP",
-      rating: 4.5,
-      reviewCount: 127,
-    },
-    { name: "IFPI", location: "Teresina, PI", rating: 3.8, reviewCount: 45 },
-    { name: "Samsung", location: "Campinas, SP", rating: 4.2, reviewCount: 89 },
-    {
-      name: "Mercado Livre",
-      location: "São Paulo, SP",
-      rating: 4.1,
-      reviewCount: 203,
-    },
-    { name: "iFood", location: "Osasco, SP", rating: 3.9, reviewCount: 156 },
-    { name: "Ambev", location: "São Paulo, SP", rating: 4.0, reviewCount: 78 },
-    {
-      name: "Globo",
-      location: "Rio de Janeiro, RJ",
-      rating: 3.7,
-      reviewCount: 34,
-    },
-    { name: "Totvs", location: "São Paulo, SP", rating: 4.3, reviewCount: 92 },
-    {
-      name: "XP Investimentos",
-      location: "São Paulo, SP",
-      rating: 4.4,
-      reviewCount: 110,
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-[#F7F9FC]">
@@ -242,22 +242,29 @@ export default function Home() {
       <div className="px-4 py-12">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-bold text-[#0F172A] mb-6">
-            Empresas recentes
+            {searchQuery.trim() ? "Resultados da busca" : "Empresas recentes"}
           </h2>
-          <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            style={{ filter: "drop-shadow(0 2px 8px rgba(37, 99, 235, 0.08))" }}
-          >
-            {mockCompanies.map((company, index) => (
-              <CompanyCard
-                key={index}
-                name={company.name}
-                location={company.location}
-                rating={company.rating}
-                reviewCount={company.reviewCount}
-              />
-            ))}
-          </div>
+          {loading ? (
+            <p className="text-gray-500">Carregando empresas...</p>
+          ) : companies.length === 0 ? (
+            <p className="text-gray-500">Nenhuma empresa encontrada.</p>
+          ) : (
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              style={{ filter: "drop-shadow(0 2px 8px rgba(37, 99, 235, 0.08))" }}
+            >
+              {companies.map((company) => (
+                <CompanyCard
+                  key={company.id}
+                  name={company.name}
+                  slug={company.slug}
+                  location={[company.city, company.state].filter(Boolean).join(", ")}
+                  rating={company.averageRating}
+                  reviewCount={company.reviewCount}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

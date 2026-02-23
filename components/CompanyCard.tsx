@@ -1,5 +1,8 @@
+import Link from "next/link";
+
 interface CompanyCardProps {
   name: string;
+  slug: string;
   location: string;
   rating: number;
   reviewCount: number;
@@ -7,12 +10,13 @@ interface CompanyCardProps {
 
 export default function CompanyCard({
   name,
+  slug,
   location,
   rating,
   reviewCount,
 }: CompanyCardProps) {
   return (
-    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 h-48 transition-all hover:scale-105 hover:shadow-lg cursor-pointer">
+    <Link href={`/companies/${slug}`} className="bg-white border border-[#E2E8F0] rounded-2xl p-6 h-48 transition-all hover:scale-105 hover:shadow-lg cursor-pointer block">
       <div className="flex flex-col h-full justify-between">
         <div>
           <h3 className="text-xl font-semibold text-[#0F172A] mb-2">{name}</h3>
@@ -40,6 +44,6 @@ export default function CompanyCard({
           <span className="text-sm text-[#64748B]">{reviewCount} reviews</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

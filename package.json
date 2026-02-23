@@ -21,6 +21,9 @@
     "react-dom": "19.2.3",
     "unique-names-generator": "^4.7.1"
   },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
