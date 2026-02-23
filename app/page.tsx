@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 import CompanyCard from "@/components/CompanyCard";
@@ -10,6 +11,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isNewReviewExpanded, setIsNewReviewExpanded] = useState(false);
+  const { data: session } = useSession();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +46,16 @@ export default function Home() {
     <div className="min-h-screen bg-[#F7F9FC]">
       {/* Seção Hero com background escuro */}
       <div className="bg-[#2B2D31] rounded-b-[40px] shadow-xl h-[380px] relative overflow-hidden">
+        {/* Botão Sair */}
+        {session?.user && (
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="absolute top-5 right-5 z-20 cursor-pointer rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm font-medium text-white/90 backdrop-blur-md transition-all hover:bg-white/20"
+          >
+            Sair
+          </button>
+        )}
+
         {/* Glow sutil azul (esquerda) */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-[#2563EB] opacity-[0.08] blur-[120px] rounded-full"></div>
         {/* Glow sutil verde (direita) */}

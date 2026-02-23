@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
 
-import { Navbar } from "@/components/layout/Navbar";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 
 import "./globals.css";
@@ -32,7 +31,6 @@ export default function RootLayout({
     <html lang="en" className={`${sora.variable} ${inter.variable}`}>
       <body className="font-inter antialiased">
         <AuthProvider>
-          <Navbar />
           {children}
         </AuthProvider>
       </body>
