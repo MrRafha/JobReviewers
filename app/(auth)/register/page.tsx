@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
-  const [handle, setHandle] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -34,7 +33,7 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, handle }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
@@ -74,21 +73,6 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="mb-2 block text-sm font-medium">Handle</label>
-              <input
-                type="text"
-                value={handle}
-                onChange={(e) => setHandle(e.target.value)}
-                className="w-full rounded-lg border px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                placeholder="seu_handle"
-                required
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                Identificador único e público
-              </p>
-            </div>
-
             <div>
               <label className="mb-2 block text-sm font-medium">Email</label>
               <input

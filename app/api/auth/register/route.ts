@@ -1,17 +1,51 @@
 import { NextResponse } from "next/server";
 
 import bcrypt from "bcryptjs";
+import {
+  NumberDictionary,
+  adjectives,
+  animals,
+  uniqueNamesGenerator,
+} from "unique-names-generator";
 
 import { prisma } from "@/lib/prisma";
+
+const numberDictionary = NumberDictionary.generate({ min: 10, max: 999 });
+
+async function generateUniqueHandle(): Promise<string> {
+  const maxAttempts = 10;
+
+  for (let i = 0; i < maxAttempts; i++) {
+    const handle = uniqueNamesGenerator({
+      dictionaries: [adjectives, animals, numberDictionary],
+      separator: "_",
+      style: "lowerCase",
+      length: 3,
+    });
+
+    const existing = await prisma.user.findUnique({ where: { handle } });
+    if (!existing) return handle;
+  }
+
+  // Fallback: adiciona timestamp para garantir unicidade
+  return (
+    uniqueNamesGenerator({
+      dictionaries: [adjectives, animals],
+      separator: "_",
+      style: "lowerCase",
+      length: 2,
+    }) + `_${Date.now()}`
+  );
+}
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, password, handle } = body;
+    const { email, password } = body;
 
-    if (!email || !password || !handle) {
+    if (!email || !password) {
       return NextResponse.json(
-        { error: "Email, senha e handle são obrigatórios" },
+        { error: "Email e senha são obrigatórios" },
         { status: 400 }
       );
     }
@@ -34,17 +68,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const existingHandle = await prisma.user.findUnique({
-      where: { handle },
-    });
-
-    if (existingHandle) {
-      return NextResponse.json(
-        { error: "Este handle já está em uso" },
-        { status: 409 }
-      );
-    }
-
+    const handle = await generateUniqueHandle();
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = await prisma.user.create({
