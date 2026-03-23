@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function Navbar() {
@@ -19,10 +21,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 transition-transform hover:scale-105">
-            <img
+          <Link
+            href="/"
+            className="flex items-center gap-3 transition-transform hover:scale-105"
+          >
+            <Image
               src="/logo.png"
               alt="JobReviewers"
+              width={56}
+              height={40}
               className="h-10 w-14"
             />
             <span className="font-sora font-bold text-white text-lg hidden sm:block">

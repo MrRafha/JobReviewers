@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+
 import { Container, Footer, Navbar } from "@/components/layout";
 
 interface Company {
@@ -49,11 +50,16 @@ export default function NewReviewPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { status } = useSession();
+  const initialCompanyId = searchParams.get("companyId");
+  const initialCompanyName = searchParams.get("companyName");
 
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
-  const [companySearch, setCompanySearch] = useState("");
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [companySearch, setCompanySearch] = useState(initialCompanyName ?? "");
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(
+    initialCompanyId && initialCompanyName
+      ? { id: initialCompanyId, name: initialCompanyName }
+      : null
+  );
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -76,43 +82,29 @@ export default function NewReviewPage() {
         if (res.ok) {
           const data = await res.json();
           setCompanies(data);
+
+          if (!selectedCompany && initialCompanyId && !initialCompanyName) {
+            const found = data.find((c: Company) => c.id === initialCompanyId);
+            if (found) {
+              setSelectedCompany(found);
+              setCompanySearch(found.name);
+            }
+          }
         }
       } catch {
         console.error("Erro ao buscar empresas");
       }
     }
     fetchCompanies();
-  }, []);
+  }, [initialCompanyId, initialCompanyName, selectedCompany]);
 
-  useEffect(() => {
-    const companyId = searchParams.get("companyId");
-    const companyName = searchParams.get("companyName");
-
-    if (companyId && companyName) {
-      setSelectedCompany({ id: companyId, name: companyName });
-      setCompanySearch(companyName);
-      return;
-    }
-
-    if (companyId && companies.length > 0) {
-      const found = companies.find((c) => c.id === companyId);
-      if (found) {
-        setSelectedCompany(found);
-        setCompanySearch(found.name);
-      }
-    }
-  }, [searchParams, companies]);
-
-  useEffect(() => {
+  const filteredCompanies = useMemo(() => {
     if (!companySearch.trim()) {
-      setFilteredCompanies(companies);
-      return;
+      return companies;
     }
 
     const query = companySearch.toLowerCase();
-    setFilteredCompanies(
-      companies.filter((c) => c.name.toLowerCase().includes(query))
-    );
+    return companies.filter((c) => c.name.toLowerCase().includes(query));
   }, [companySearch, companies]);
 
   useEffect(() => {

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { signIn } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -53,9 +54,11 @@ function LoginForm() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-4">
-            <img
+            <Image
               src="/logo.png"
               alt="JobReviewers Logo"
+              width={112}
+              height={80}
               className="h-20 w-28 mx-auto transition-transform hover:scale-105"
             />
           </Link>

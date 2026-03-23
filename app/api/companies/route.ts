@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { getAllCompanies, searchCompanies } from "@/lib/services/companies";
 
 export async function GET(request: NextRequest) {
@@ -12,7 +13,9 @@ export async function GET(request: NextRequest) {
     if (search) {
       companies = await searchCompanies(search);
     } else {
-      companies = await getAllCompanies(limit ? parseInt(limit, 10) : undefined);
+      companies = await getAllCompanies(
+        limit ? parseInt(limit, 10) : undefined
+      );
     }
 
     return NextResponse.json(companies);

@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { Navbar, Footer, Container } from "@/components/layout";
+
+import { Container, Footer, Navbar } from "@/components/layout";
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-[#F7F9FC] flex flex-col">
       <Navbar />
-      
+
       <main className="flex-1 flex items-center justify-center py-12">
         <Container>
           <div className="text-center">
@@ -24,15 +25,15 @@ export default function NotFound() {
                 />
               </svg>
             </div>
-            
+
             <h1 className="font-sora text-4xl font-bold text-[#0F172A] mb-4">
               Empresa não encontrada
             </h1>
-            
+
             <p className="text-[#64748B] text-lg mb-8 max-w-md mx-auto">
               A empresa que você está procurando não existe ou foi removida.
             </p>
-            
+
             <div className="flex items-center justify-center gap-4">
               <Link
                 href="/"
@@ -40,7 +41,7 @@ export default function NotFound() {
               >
                 Voltar para Home
               </Link>
-              
+
               <Link
                 href="/reviews/new"
                 className="bg-white border border-[#E2E8F0] hover:border-[#2563EB] text-[#0F172A] px-6 py-3 rounded-full font-semibold transition-all hover:scale-105"
@@ -51,7 +52,7 @@ export default function NotFound() {
           </div>
         </Container>
       </main>
-      
+
       <Footer />
     </div>
   );

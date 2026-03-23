@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -91,9 +92,11 @@ export default function RegisterPage() {
       <div className="max-w-md w-full relative z-10">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-4">
-            <img
+            <Image
               src="/logo.png"
               alt="JobReviewers Logo"
+              width={112}
+              height={80}
               className="h-20 w-28 mx-auto transition-transform hover:scale-105"
             />
           </Link>
@@ -179,7 +182,9 @@ export default function RegisterPage() {
                 minLength={8}
                 required
               />
-              <p className="text-xs text-white/50 mt-1">Mínimo de 8 caracteres</p>
+              <p className="text-xs text-white/50 mt-1">
+                Mínimo de 8 caracteres
+              </p>
             </div>
 
             <div>
@@ -206,7 +211,10 @@ export default function RegisterPage() {
                 />
                 <span>
                   Eu concordo com os{" "}
-                  <Link href="/terms" className="text-[#60A5FA] hover:text-[#93C5FD] underline">
+                  <Link
+                    href="/terms"
+                    className="text-[#60A5FA] hover:text-[#93C5FD] underline"
+                  >
                     Termos de Uso
                   </Link>{" "}
                   e{" "}

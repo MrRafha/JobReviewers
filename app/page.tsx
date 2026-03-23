@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 
 import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+
 import CompanyCard from "@/components/CompanyCard";
 import { Footer } from "@/components/layout";
 
@@ -69,7 +70,10 @@ export default function Home() {
 
         <div className="flex flex-col items-center justify-center px-4 pt-10 h-full relative z-10">
           <div className="w-full max-w-3xl flex flex-col items-center">
-            <Link href="/" className="mb-6 transition-transform hover:scale-105">
+            <Link
+              href="/"
+              className="mb-6 transition-transform hover:scale-105"
+            >
               <Image
                 src="/logo.png"
                 alt="JobReviewers Logo"
@@ -225,7 +229,9 @@ export default function Home() {
       <div className="px-4 py-12">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-bold text-[#0F172A] mb-6">
-            {searchQuery.trim() ? "Resultados da busca" : "Empresas melhor avaliadas"}
+            {searchQuery.trim()
+              ? "Resultados da busca"
+              : "Empresas melhor avaliadas"}
           </h2>
 
           {loading ? (

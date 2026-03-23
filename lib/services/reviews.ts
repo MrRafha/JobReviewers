@@ -1,5 +1,6 @@
+import { ContractType, Seniority, WorkMode } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
-import { Seniority, ContractType, WorkMode } from "@prisma/client";
 
 export interface CreateReviewData {
   companyId: string;
@@ -47,7 +48,8 @@ export async function getReviewsByCompany(
   const limit = options?.limit || 10;
   const skip = (page - 1) * limit;
 
-  let orderBy: { createdAt?: "desc" | "asc"; ratingOverall?: "desc" | "asc" } = { createdAt: "desc" };
+  let orderBy: { createdAt?: "desc" | "asc"; ratingOverall?: "desc" | "asc" } =
+    { createdAt: "desc" };
 
   if (options?.sortBy === "rating-high") {
     orderBy = { ratingOverall: "desc" };

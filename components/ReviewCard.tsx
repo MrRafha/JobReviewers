@@ -30,7 +30,9 @@ export default function ReviewCard({
               <svg
                 key={star}
                 className={`w-5 h-5 ${
-                  star <= rating ? "text-[#FCD34D] fill-[#FCD34D]" : "text-[#E2E8F0]"
+                  star <= rating
+                    ? "text-[#FCD34D] fill-[#FCD34D]"
+                    : "text-[#E2E8F0]"
                 }`}
                 fill="currentColor"
                 viewBox="0 0 24 24"
@@ -38,10 +40,12 @@ export default function ReviewCard({
                 <path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
               </svg>
             ))}
-            <span className="ml-2 font-semibold text-[#0F172A]">{rating}.0</span>
+            <span className="ml-2 font-semibold text-[#0F172A]">
+              {rating}.0
+            </span>
           </div>
         </div>
-        
+
         {/* Data */}
         <span className="text-sm text-[#94A3B8]">{date}</span>
       </div>
@@ -80,7 +84,9 @@ export default function ReviewCard({
               <h4 className="font-semibold text-[#0F172A] text-sm mb-1">
                 Pontos Positivos
               </h4>
-              <p className="text-[#64748B] text-sm leading-relaxed">{positives}</p>
+              <p className="text-[#64748B] text-sm leading-relaxed">
+                {positives}
+              </p>
             </div>
           </div>
         </div>
@@ -107,7 +113,9 @@ export default function ReviewCard({
               <h4 className="font-semibold text-[#0F172A] text-sm mb-1">
                 Pontos Negativos
               </h4>
-              <p className="text-[#64748B] text-sm leading-relaxed">{negatives}</p>
+              <p className="text-[#64748B] text-sm leading-relaxed">
+                {negatives}
+              </p>
             </div>
           </div>
         </div>

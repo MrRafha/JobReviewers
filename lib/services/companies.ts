@@ -76,9 +76,10 @@ export async function getAllCompanies(limit?: number) {
         id: company.id,
         name: company.name,
         slug: company.slug,
-        location: company.city && company.state 
-          ? `${company.city}, ${company.state}` 
-          : "Localização não informada",
+        location:
+          company.city && company.state
+            ? `${company.city}, ${company.state}`
+            : "Localização não informada",
         rating: Number(averageRating.toFixed(1)),
         reviewCount: company.reviews.length,
       };
@@ -127,9 +128,10 @@ export async function searchCompanies(query: string) {
         id: company.id,
         name: company.name,
         slug: company.slug,
-        location: company.city && company.state 
-          ? `${company.city}, ${company.state}` 
-          : "Localização não informada",
+        location:
+          company.city && company.state
+            ? `${company.city}, ${company.state}`
+            : "Localização não informada",
         rating: Number(averageRating.toFixed(1)),
         reviewCount: company.reviews.length,
       };

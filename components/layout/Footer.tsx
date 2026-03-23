@@ -1,5 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -11,7 +11,13 @@ export default function Footer() {
           {/* Logo e Descrição */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <Image src="/logo.png" alt="JobReviewers" width={64} height={48} className="h-12 w-16" />
+              <Image
+                src="/logo.png"
+                alt="JobReviewers"
+                width={64}
+                height={48}
+                className="h-12 w-16"
+              />
               <span className="font-sora font-bold text-white text-xl">
                 Job Reviewers
               </span>

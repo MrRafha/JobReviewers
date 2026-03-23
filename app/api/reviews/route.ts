@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { ContractType, Seniority, WorkMode } from "@prisma/client";
+
 import { auth } from "@/auth";
-import { createReview } from "@/lib/services/reviews";
 import { prisma } from "@/lib/prisma";
-import { Seniority, ContractType, WorkMode } from "@prisma/client";
+import { createReview } from "@/lib/services/reviews";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
