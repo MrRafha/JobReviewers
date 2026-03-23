@@ -4,19 +4,59 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [birthdate, setBirthdate] = useState("");
   const router = useRouter();
+
+  const calculateAge = (birthdate: string): number => {
+    const today = new Date();
+    const birthDate = new Date(birthdate);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implementar login com NextAuth
-    console.log("Login:", { email, password });
+    
+    // Validação de senha
+    if (password !== confirmPassword) {
+      alert("As senhas não coincidem!");
+      return;
+    }
+
+    // Validação de data de nascimento
+    if (!birthdate) {
+      alert("Por favor, insira sua data de nascimento");
+      return;
+    }
+
+    const age = calculateAge(birthdate);
+    
+    if (age < 18) {
+      alert("Você precisa ter pelo menos 18 anos para se cadastrar.");
+      return;
+    }
+
+    if (age > 120) {
+      alert("Por favor, insira uma data de nascimento válida.");
+      return;
+    }
+
+    // TODO: Implementar cadastro com NextAuth
+    console.log("Cadastro:", { email, password, birthdate, age });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#2B2D31] px-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#2B2D31] px-4 relative overflow-hidden py-8">
       {/* Glow sutil azul (esquerda) */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-[#2563EB] opacity-[0.08] blur-[120px] rounded-full"></div>
       {/* Glow sutil verde (direita) */}
@@ -35,7 +75,7 @@ export default function LoginPage() {
           <h1 className="font-sora text-3xl font-bold text-white mb-2">
             Job Reviewers
           </h1>
-          <p className="text-white/70">Por favor faça login para continuar</p>
+          <p className="text-white/70">Crie sua conta e comece a avaliar</p>
         </div>
 
         {/* Form Card */}
@@ -62,10 +102,10 @@ export default function LoginPage() {
           </button>
 
           <h2 className="font-sora text-2xl font-bold text-white mb-6 text-center">
-            Login
+            Criar Conta
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-white mb-2">
                 Email
@@ -82,6 +122,21 @@ export default function LoginPage() {
 
             <div>
               <label className="block text-sm font-semibold text-white mb-2">
+                Data de Nascimento
+              </label>
+              <input
+                type="date"
+                value={birthdate}
+                onChange={(e) => setBirthdate(e.target.value)}
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/50 focus:border-[#2563EB] transition-all [color-scheme:dark]"
+                max={new Date().toISOString().split('T')[0]}
+                required
+              />
+              <p className="text-xs text-white/50 mt-1">Você deve ter pelo menos 18 anos</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-white mb-2">
                 Senha
               </label>
               <input
@@ -90,41 +145,62 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/50 focus:border-[#2563EB] transition-all"
                 placeholder="••••••••"
+                minLength={8}
+                required
+              />
+              <p className="text-xs text-white/50 mt-1">Mínimo de 8 caracteres</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-white mb-2">
+                Confirmar Senha
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/50 focus:border-[#2563EB] transition-all"
+                placeholder="••••••••"
+                minLength={8}
                 required
               />
             </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-white/70 cursor-pointer">
+            <div className="pt-2">
+              <label className="flex items-start gap-2 text-white/70 cursor-pointer text-xs">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 rounded border-white/20 bg-white/10 text-[#2563EB] focus:ring-[#2563EB]/20"
+                  className="w-4 h-4 rounded border-white/20 bg-white/10 text-[#2563EB] focus:ring-[#2563EB]/20 mt-0.5"
+                  required
                 />
-                Lembrar-me
+                <span>
+                  Eu concordo com os{" "}
+                  <Link href="/terms" className="text-[#60A5FA] hover:text-[#93C5FD] underline">
+                    Termos de Uso
+                  </Link>{" "}
+                  e{" "}
+                  <Link href="/privacy" className="text-[#60A5FA] hover:text-[#93C5FD] underline">
+                    Política de Privacidade
+                  </Link>
+                </span>
               </label>
-              <Link
-                href="/forgot-password"
-                className="text-[#2563EB] hover:text-[#60A5FA] transition-colors"
-              >
-                Esqueceu a senha?
-              </Link>
             </div>
 
             <button
               type="submit"
               className="w-full bg-[#22C55E] hover:bg-[#16A34A] text-white py-3 rounded-xl font-semibold transition-all hover:scale-[1.02] hover:shadow-lg"
             >
-              Entrar
+              Criar Conta
             </button>
           </form>
 
           <p className="text-center text-sm text-white/70 mt-6">
-            Não tem conta?{" "}
+            Já tem uma conta?{" "}
             <Link
-              href="/register"
+              href="/login"
               className="text-[#60A5FA] hover:text-[#93C5FD] font-semibold transition-colors"
             >
-              Criar conta
+              Fazer login
             </Link>
           </p>
         </div>
