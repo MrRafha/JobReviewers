@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     if (search) {
       companies = await searchCompanies(search);
     } else {
-      companies = await getAllCompanies(limit ? parseInt(limit) : undefined);
+      companies = await getAllCompanies(limit ? parseInt(limit, 10) : undefined);
     }
 
     return NextResponse.json(companies);

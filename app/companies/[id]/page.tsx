@@ -1,21 +1,20 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Navbar, Footer, Container } from "@/components/layout";
+
 import ReviewCard from "@/components/ReviewCard";
-import { getCompanyById, getCompanyStats } from "@/lib/services/companies";
+import { Container, Footer, Navbar } from "@/components/layout";
+import {
+  getCompanyById,
+  getCompanyBySlug,
+  getCompanyStats,
+} from "@/lib/services/companies";
 import { getReviewsByCompany } from "@/lib/services/reviews";
 
-// Página de empresa
-// URL: /companies/[id]
-
 interface CompanyPageProps {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 }
 
-// Mapeamento de enum para texto legível
 const seniorityMap: Record<string, string> = {
   JR: "Júnior",
   PL: "Pleno",
@@ -30,20 +29,19 @@ const contractTypeMap: Record<string, string> = {
 };
 
 export default async function CompanyPage({ params }: CompanyPageProps) {
-  // No Next.js 15+, params é uma Promise
   const { id } = await params;
-  
-  // Buscar empresa e reviews do banco
-  const company = await getCompanyById(id);
-  
+
+  const companyById = await getCompanyById(id);
+  const company = companyById ?? (await getCompanyBySlug(id));
+
   if (!company) {
     notFound();
   }
 
-  const stats = await getCompanyStats(id);
-  const { reviews } = await getReviewsByCompany(id, { limit: 10 });
+  const companyId = company.id;
+  const stats = await getCompanyStats(companyId);
+  const { reviews } = await getReviewsByCompany(companyId, { limit: 10 });
 
-  // Formatar reviews para o componente
   const formattedReviews = reviews.map((review) => ({
     rating: review.ratingOverall,
     position: review.roleArea,
@@ -52,7 +50,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
     positives: review.pros,
     negatives: review.cons,
     date: new Date(review.createdAt).toLocaleDateString("pt-BR"),
-    helpfulCount: 0, // TODO: Implementar sistema de votos
+    helpfulCount: 0,
   }));
 
   return (
@@ -60,11 +58,9 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
       <Navbar />
 
       <main className="flex-1">
-        {/* Header da Empresa */}
         <div className="bg-[#2B2D31] py-12">
           <Container>
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              {/* Logo da Empresa */}
               <div className="bg-white rounded-2xl p-4 w-24 h-24 flex items-center justify-center shadow-lg">
                 <Image
                   src="/logo.png"
@@ -75,7 +71,6 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                 />
               </div>
 
-              {/* Info da Empresa */}
               <div className="flex-1">
                 <h1 className="font-sora text-4xl font-bold text-white mb-2">
                   {company.name}
@@ -109,9 +104,8 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                 </div>
               </div>
 
-              {/* CTA Button */}
               <Link
-                href={`/reviews/new?companyId=${id}&companyName=${encodeURIComponent(company.name)}`}
+                href={`/reviews/new?companyId=${companyId}&companyName=${encodeURIComponent(company.name)}`}
                 className="bg-[#22C55E]/10 hover:bg-[#22C55E]/20 text-white border border-[#22C55E]/30 px-6 py-3 rounded-full font-semibold transition-all hover:scale-105 flex items-center gap-2"
               >
                 <svg
@@ -133,13 +127,10 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
           </Container>
         </div>
 
-        {/* Estatísticas e Reviews */}
         <Container className="py-12">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Sidebar com Estatísticas */}
             <div className="lg:col-span-1">
               <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 sticky top-24">
-                {/* Rating Geral */}
                 <div className="text-center pb-6 border-b border-[#E2E8F0]">
                   <div className="text-5xl font-bold text-[#0F172A] mb-2">
                     {stats.averageRating.toFixed(1)}
@@ -165,7 +156,6 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                   </p>
                 </div>
 
-                {/* Distribuição de Estrelas */}
                 <div className="pt-6">
                   <h3 className="font-semibold text-[#0F172A] mb-4">
                     Distribuição de Avaliações
@@ -192,14 +182,12 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
               </div>
             </div>
 
-            {/* Lista de Reviews */}
             <div className="lg:col-span-2">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="font-sora text-2xl font-bold text-[#0F172A]">
                   Avaliações ({stats.totalReviews})
                 </h2>
-                
-                {/* Filtro */}
+
                 <select className="border border-[#E2E8F0] rounded-xl px-4 py-2 text-sm text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all">
                   <option value="recent">Mais Recentes</option>
                   <option value="helpful">Mais Úteis</option>
@@ -208,7 +196,6 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                 </select>
               </div>
 
-              {/* Reviews */}
               {formattedReviews.length > 0 ? (
                 <div className="space-y-6">
                   {formattedReviews.map((review, index) => (
@@ -237,34 +224,13 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                     Seja o primeiro a avaliar {company.name}
                   </p>
                   <Link
-                    href={`/reviews/new?companyId=${id}&companyName=${encodeURIComponent(company.name)}`}
+                    href={`/reviews/new?companyId=${companyId}&companyName=${encodeURIComponent(company.name)}`}
                     className="inline-block bg-[#22C55E] hover:bg-[#16A34A] text-white px-6 py-2 rounded-full font-semibold transition-all"
                   >
                     Escrever Primeira Review
                   </Link>
                 </div>
               )}
-
-              {/* Paginação Placeholder */}
-              <div className="mt-8 flex justify-center">
-                <div className="flex items-center gap-2">
-                  <button className="px-4 py-2 border border-[#E2E8F0] rounded-lg text-[#64748B] hover:bg-[#F1F5F9] transition-colors">
-                    Anterior
-                  </button>
-                  <button className="px-4 py-2 bg-[#2563EB] text-white rounded-lg font-medium">
-                    1
-                  </button>
-                  <button className="px-4 py-2 border border-[#E2E8F0] rounded-lg text-[#64748B] hover:bg-[#F1F5F9] transition-colors">
-                    2
-                  </button>
-                  <button className="px-4 py-2 border border-[#E2E8F0] rounded-lg text-[#64748B] hover:bg-[#F1F5F9] transition-colors">
-                    3
-                  </button>
-                  <button className="px-4 py-2 border border-[#E2E8F0] rounded-lg text-[#64748B] hover:bg-[#F1F5F9] transition-colors">
-                    Próximo
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </Container>

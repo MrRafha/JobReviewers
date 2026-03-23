@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -9,61 +10,85 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [birthdate, setBirthdate] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const calculateAge = (birthdate: string): number => {
+  const calculateAge = (date: string): number => {
     const today = new Date();
-    const birthDate = new Date(birthdate);
+    const birthDate = new Date(date);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
-    
+
     return age;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validação de senha
+    setError("");
+
     if (password !== confirmPassword) {
-      alert("As senhas não coincidem!");
+      setError("As senhas não coincidem");
       return;
     }
 
-    // Validação de data de nascimento
+    if (password.length < 8) {
+      setError("A senha deve ter pelo menos 8 caracteres");
+      return;
+    }
+
     if (!birthdate) {
-      alert("Por favor, insira sua data de nascimento");
+      setError("Por favor, insira sua data de nascimento");
       return;
     }
 
     const age = calculateAge(birthdate);
-    
     if (age < 18) {
-      alert("Você precisa ter pelo menos 18 anos para se cadastrar.");
+      setError("Você precisa ter pelo menos 18 anos para se cadastrar.");
       return;
     }
 
     if (age > 120) {
-      alert("Por favor, insira uma data de nascimento válida.");
+      setError("Por favor, insira uma data de nascimento válida.");
       return;
     }
 
-    // TODO: Implementar cadastro com NextAuth
-    console.log("Cadastro:", { email, password, birthdate, age });
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Erro ao criar conta");
+        return;
+      }
+
+      router.push("/login?registered=true");
+    } catch {
+      setError("Erro de conexão. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#2B2D31] px-4 relative overflow-hidden py-8">
-      {/* Glow sutil azul (esquerda) */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-[#2563EB] opacity-[0.08] blur-[120px] rounded-full"></div>
-      {/* Glow sutil verde (direita) */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#22C55E] opacity-[0.08] blur-[120px] rounded-full"></div>
 
       <div className="max-w-md w-full relative z-10">
-        {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-4">
             <img
@@ -78,9 +103,7 @@ export default function RegisterPage() {
           <p className="text-white/70">Crie sua conta e comece a avaliar</p>
         </div>
 
-        {/* Form Card */}
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 shadow-xl relative">
-          {/* Back Button */}
           <button
             onClick={() => router.back()}
             className="absolute top-6 left-6 p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
@@ -104,6 +127,12 @@ export default function RegisterPage() {
           <h2 className="font-sora text-2xl font-bold text-white mb-6 text-center">
             Criar Conta
           </h2>
+
+          {error && (
+            <div className="mb-4 rounded-lg bg-red-500/15 border border-red-400/30 p-3 text-sm text-red-200">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -129,10 +158,12 @@ export default function RegisterPage() {
                 value={birthdate}
                 onChange={(e) => setBirthdate(e.target.value)}
                 className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/50 focus:border-[#2563EB] transition-all [color-scheme:dark]"
-                max={new Date().toISOString().split('T')[0]}
+                max={new Date().toISOString().split("T")[0]}
                 required
               />
-              <p className="text-xs text-white/50 mt-1">Você deve ter pelo menos 18 anos</p>
+              <p className="text-xs text-white/50 mt-1">
+                Você deve ter pelo menos 18 anos
+              </p>
             </div>
 
             <div>
@@ -179,7 +210,10 @@ export default function RegisterPage() {
                     Termos de Uso
                   </Link>{" "}
                   e{" "}
-                  <Link href="/privacy" className="text-[#60A5FA] hover:text-[#93C5FD] underline">
+                  <Link
+                    href="/privacy"
+                    className="text-[#60A5FA] hover:text-[#93C5FD] underline"
+                  >
                     Política de Privacidade
                   </Link>
                 </span>
@@ -188,9 +222,10 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="w-full bg-[#22C55E] hover:bg-[#16A34A] text-white py-3 rounded-xl font-semibold transition-all hover:scale-[1.02] hover:shadow-lg"
+              disabled={loading}
+              className="w-full bg-[#22C55E] hover:bg-[#16A34A] text-white py-3 rounded-xl font-semibold transition-all hover:scale-[1.02] hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Criar Conta
+              {loading ? "Criando conta..." : "Criar Conta"}
             </button>
           </form>
 
@@ -205,7 +240,6 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Security Info */}
         <div className="mt-6 text-center">
           <p className="text-xs text-white/50">
             Seus dados estão protegidos e nunca serão compartilhados

@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+
+import { auth } from "@/auth";
 import { createReview } from "@/lib/services/reviews";
 import { prisma } from "@/lib/prisma";
 import { Seniority, ContractType, WorkMode } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
   try {
     const body = await request.json();
 
@@ -20,45 +27,51 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validações básicas
-    if (!companyId || !roleArea || !seniority || !contractType || !workMode || !ratingOverall || !pros || !cons) {
+    if (
+      !companyId ||
+      !roleArea ||
+      !seniority ||
+      !contractType ||
+      !workMode ||
+      !ratingOverall ||
+      !pros ||
+      !cons
+    ) {
       return NextResponse.json(
         { error: "Todos os campos obrigatórios devem ser preenchidos" },
         { status: 400 }
       );
     }
 
-    if (ratingOverall < 1 || ratingOverall > 5) {
+    const numericRating = Number(ratingOverall);
+    if (Number.isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
       return NextResponse.json(
         { error: "A avaliação deve ser entre 1 e 5" },
         { status: 400 }
       );
     }
 
-    // TODO: Pegar userId da sessão autenticada
-    // Por enquanto, criar ou buscar usuário anônimo temporário
-    let user = await prisma.user.findFirst({
-      where: { email: "anonimo@temp.com" },
+    // Verificar se a empresa existe
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
     });
 
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email: "anonimo@temp.com",
-          handle: "Usuario_Anonimo",
-          verifiedEmail: true,
-        },
-      });
+    if (!company) {
+      return NextResponse.json(
+        { error: "Empresa não encontrada" },
+        { status: 404 }
+      );
     }
 
     const review = await createReview({
       companyId,
-      userId: user.id,
+      userId: session.user.id,
       roleArea,
-      seniority: seniority as Seniority,
-      contractType: contractType as ContractType,
-      workMode: workMode as WorkMode,
-      year: year ? parseInt(year) : undefined,
-      ratingOverall: parseInt(ratingOverall),
+      seniority: String(seniority).toUpperCase() as Seniority,
+      contractType: String(contractType).toUpperCase() as ContractType,
+      workMode: String(workMode).toUpperCase() as WorkMode,
+      year: year ? parseInt(String(year), 10) : undefined,
+      ratingOverall: numericRating,
       pros,
       cons,
     });
@@ -67,7 +80,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating review:", error);
     return NextResponse.json(
-      { error: "Erro ao criar review" },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }

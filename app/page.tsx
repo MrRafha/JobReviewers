@@ -1,6 +1,8 @@
-"use client";
+﻿"use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import CompanyCard from "@/components/CompanyCard";
@@ -9,6 +11,7 @@ import { Footer } from "@/components/layout";
 interface Company {
   id: string;
   name: string;
+  slug: string;
   location: string;
   rating: number;
   reviewCount: number;
@@ -18,61 +21,55 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isNewReviewExpanded, setIsNewReviewExpanded] = useState(false);
+  const { data: session } = useSession();
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  // Buscar empresas ao carregar a página
   useEffect(() => {
     async function fetchCompanies() {
       try {
-        const response = await fetch("/api/companies");
-        if (response.ok) {
-          const data = await response.json();
+        const query = searchQuery.trim()
+          ? `?search=${encodeURIComponent(searchQuery.trim())}`
+          : "?limit=12";
+        const res = await fetch(`/api/companies${query}`);
+        if (res.ok) {
+          const data = await res.json();
           setCompanies(data);
         }
-      } catch (error) {
-        console.error("Error fetching companies:", error);
+      } catch {
+        console.error("Erro ao buscar empresas");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     }
 
-    fetchCompanies();
-  }, []);
+    setLoading(true);
+    const debounce = setTimeout(fetchCompanies, 300);
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-
-    try {
-      const response = await fetch(
-        `/api/companies?search=${encodeURIComponent(searchQuery)}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setCompanies(data);
-      }
-    } catch (error) {
-      console.error("Error searching companies:", error);
-    }
   };
 
   return (
     <div className="min-h-screen bg-[#F7F9FC]">
-      {/* Seção Hero com background escuro */}
       <div className="bg-[#2B2D31] rounded-b-[40px] shadow-xl h-[380px] relative overflow-hidden">
-        {/* Glow sutil azul (esquerda) */}
+        {session?.user && (
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="absolute top-5 right-5 z-20 cursor-pointer rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm font-medium text-white/90 backdrop-blur-md transition-all hover:bg-white/20"
+          >
+            Sair
+          </button>
+        )}
+
         <div className="absolute top-0 left-0 w-96 h-96 bg-[#2563EB] opacity-[0.08] blur-[120px] rounded-full"></div>
-        {/* Glow sutil verde (direita) */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#22C55E] opacity-[0.08] blur-[120px] rounded-full"></div>
 
         <div className="flex flex-col items-center justify-center px-4 pt-10 h-full relative z-10">
           <div className="w-full max-w-3xl flex flex-col items-center">
-            {/* Logo JR - Clicável */}
-            <Link
-              href="/"
-              className="mb-6 transition-transform hover:scale-105"
-            >
+            <Link href="/" className="mb-6 transition-transform hover:scale-105">
               <Image
                 src="/logo.png"
                 alt="JobReviewers Logo"
@@ -82,12 +79,10 @@ export default function Home() {
               />
             </Link>
 
-            {/* Nome do Produto */}
             <h1 className="font-sora text-4xl font-bold text-white mb-3">
               Job Reviewers
             </h1>
 
-            {/* Subtítulo forte */}
             <p
               className="text-center text-white text-xl font-normal tracking-wide mb-8"
               style={{ opacity: 0.85 }}
@@ -95,11 +90,9 @@ export default function Home() {
               Reviews anônimas e moderadas sobre empresas.
             </p>
 
-            {/* Barra de pesquisa e botão de nova review - Centralizados e dinâmicos */}
             <div className="w-full max-w-2xl flex items-center justify-center gap-3">
-              {/* Barra de pesquisa - Compacta e expansível */}
-              <form 
-                onSubmit={handleSearch} 
+              <form
+                onSubmit={handleSearch}
                 className={`transition-all duration-600 ease-in-out ${
                   isSearchExpanded ? "flex-1" : "flex-none"
                 }`}
@@ -116,7 +109,6 @@ export default function Home() {
                     if (!searchQuery) setIsSearchExpanded(false);
                   }}
                 >
-                  {/* Ícone de busca - Aparece quando compactado */}
                   {!isSearchExpanded && (
                     <button
                       type="button"
@@ -139,7 +131,6 @@ export default function Home() {
                     </button>
                   )}
 
-                  {/* Input expandido */}
                   {isSearchExpanded && (
                     <div className="relative animate-in fade-in slide-in-from-left-2 duration-800">
                       <input
@@ -150,7 +141,6 @@ export default function Home() {
                         className="w-full px-5 py-4 pl-12 text-base bg-white/10 backdrop-blur-md rounded-full focus:outline-none focus:ring-2 focus:ring-white/30 shadow-lg placeholder:text-white/60 text-white border border-white/20"
                         autoFocus
                       />
-                      {/* Ícone de busca dentro do input */}
                       <div className="absolute left-4 top-1/2 -translate-y-1/2">
                         <svg
                           className="w-5 h-5 text-white/70"
@@ -171,8 +161,7 @@ export default function Home() {
                 </div>
               </form>
 
-              {/* Botão de Nova Review - Expansível */}
-              <Link 
+              <Link
                 href="/reviews/new"
                 className={`transition-all duration-600 ease-in-out ${
                   isNewReviewExpanded ? "flex-1" : "flex-none"
@@ -188,7 +177,6 @@ export default function Home() {
                   }}
                   onMouseLeave={() => setIsNewReviewExpanded(false)}
                 >
-                  {/* Ícone compacto */}
                   {!isNewReviewExpanded && (
                     <div className="w-16 h-16 bg-[#22C55E]/[0.01] backdrop-blur-sm border border-[#22C55E]/20 rounded-full flex items-center justify-center shadow-lg hover:scale-105 hover:bg-[#22C55E]/[0.08] transition-all cursor-pointer">
                       <svg
@@ -207,7 +195,6 @@ export default function Home() {
                     </div>
                   )}
 
-                  {/* Botão expandido */}
                   {isNewReviewExpanded && (
                     <div className="w-full h-16 bg-[#22C55E]/[0.03] backdrop-blur-md border border-[#22C55E]/20 rounded-full flex items-center px-5 shadow-lg hover:bg-[#22C55E]/[0.08] transition-all cursor-pointer overflow-hidden">
                       <svg
@@ -235,14 +222,13 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Seção de Cards de Empresas */}
       <div className="px-4 py-12">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-bold text-[#0F172A] mb-6">
-            Empresas melhor avaliadas
+            {searchQuery.trim() ? "Resultados da busca" : "Empresas melhor avaliadas"}
           </h2>
 
-          {isLoading ? (
+          {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB]"></div>
               <p className="mt-4 text-[#64748B]">Carregando empresas...</p>
@@ -255,9 +241,7 @@ export default function Home() {
               }}
             >
               {companies.map((company) => (
-                <Link key={company.id} href={`/companies/${company.id}`}>
-                  <CompanyCard {...company} />
-                </Link>
+                <CompanyCard key={company.id} {...company} />
               ))}
             </div>
           ) : (
@@ -288,7 +272,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Seção Garantias de Segurança */}
       <div className="bg-[#2B2D31] py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-white text-center mb-12">
@@ -296,7 +279,6 @@ export default function Home() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1 - Anonimato Total */}
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center transition-all hover:bg-white/15">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-[#2563EB]/[0.03] rounded-full flex items-center justify-center">
@@ -321,7 +303,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Card 2 - Moderado */}
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center transition-all hover:bg-white/15">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-[#22C55E]/[0.03] rounded-full flex items-center justify-center">
@@ -346,7 +327,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Card 3 - Sem expor pessoas */}
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center transition-all hover:bg-white/15">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-[#2563EB]/[0.03] rounded-full flex items-center justify-center">
@@ -375,7 +355,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

@@ -1,128 +1,213 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Navbar, Footer, Container } from "@/components/layout";
+import { useEffect, useRef, useState } from "react";
+
+import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Container, Footer, Navbar } from "@/components/layout";
 
 interface Company {
   id: string;
   name: string;
+  location?: string;
+}
+
+function StarRating({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  const [hover, setHover] = useState(0);
+
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => onChange(star)}
+          onMouseEnter={() => setHover(star)}
+          onMouseLeave={() => setHover(0)}
+          className="text-3xl transition-colors focus:outline-none cursor-pointer"
+        >
+          <span
+            className={
+              star <= (hover || value) ? "text-yellow-400" : "text-gray-300"
+            }
+          >
+            ★
+          </span>
+        </button>
+      ))}
+    </div>
+  );
 }
 
 export default function NewReviewPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const companyId = searchParams.get("companyId");
-  const companyName = searchParams.get("companyName");
+  const searchParams = useSearchParams();
+  const { status } = useSession();
 
-  const [rating, setRating] = useState(0);
-  const [hoveredRating, setHoveredRating] = useState(0);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(
-    companyId && companyName ? { id: companyId, name: companyName } : null
-  );
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
+  const [companySearch, setCompanySearch] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Campos do formulário
-  const [formData, setFormData] = useState({
-    roleArea: "",
-    seniority: "",
-    contractType: "",
-    workMode: "",
-    year: "",
-    pros: "",
-    cons: "",
-  });
+  const [roleArea, setRoleArea] = useState("");
+  const [seniority, setSeniority] = useState("JR");
+  const [contractType, setContractType] = useState("CLT");
+  const [workMode, setWorkMode] = useState("REMOTO");
+  const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [ratingOverall, setRatingOverall] = useState(0);
+  const [pros, setPros] = useState("");
+  const [cons, setCons] = useState("");
 
-  // Buscar empresas quando o usuário digitar
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    async function searchCompanies() {
-      if (searchQuery.length < 2) {
-        setCompanies([]);
-        return;
-      }
-
-      setIsSearching(true);
+    async function fetchCompanies() {
       try {
-        const response = await fetch(
-          `/api/companies?search=${encodeURIComponent(searchQuery)}`
-        );
-        if (response.ok) {
-          const data = await response.json();
+        const res = await fetch("/api/companies");
+        if (res.ok) {
+          const data = await res.json();
           setCompanies(data);
         }
-      } catch (error) {
-        console.error("Error searching companies:", error);
-      } finally {
-        setIsSearching(false);
+      } catch {
+        console.error("Erro ao buscar empresas");
+      }
+    }
+    fetchCompanies();
+  }, []);
+
+  useEffect(() => {
+    const companyId = searchParams.get("companyId");
+    const companyName = searchParams.get("companyName");
+
+    if (companyId && companyName) {
+      setSelectedCompany({ id: companyId, name: companyName });
+      setCompanySearch(companyName);
+      return;
+    }
+
+    if (companyId && companies.length > 0) {
+      const found = companies.find((c) => c.id === companyId);
+      if (found) {
+        setSelectedCompany(found);
+        setCompanySearch(found.name);
+      }
+    }
+  }, [searchParams, companies]);
+
+  useEffect(() => {
+    if (!companySearch.trim()) {
+      setFilteredCompanies(companies);
+      return;
+    }
+
+    const query = companySearch.toLowerCase();
+    setFilteredCompanies(
+      companies.filter((c) => c.name.toLowerCase().includes(query))
+    );
+  }, [companySearch, companies]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setShowDropdown(false);
       }
     }
 
-    const timeoutId = setTimeout(searchCompanies, 300);
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError("");
 
-    // Validações
     if (!selectedCompany) {
-      alert("Por favor, selecione uma empresa");
+      setError("Selecione uma empresa da lista.");
+      return;
+    }
+    if (!roleArea.trim()) {
+      setError("Preencha o cargo/área.");
+      return;
+    }
+    if (ratingOverall < 1 || ratingOverall > 5) {
+      setError("Selecione uma avaliação de 1 a 5 estrelas.");
+      return;
+    }
+    if (!pros.trim() || !cons.trim()) {
+      setError("Preencha os pontos positivos e negativos.");
       return;
     }
 
-    if (rating === 0) {
-      alert("Por favor, dê uma avaliação geral");
-      return;
-    }
-
-    if (!formData.roleArea || !formData.seniority || !formData.contractType || !formData.workMode) {
-      alert("Por favor, preencha todos os campos obrigatórios");
-      return;
-    }
-
-    if (!formData.pros.trim() || !formData.cons.trim()) {
-      alert("Por favor, preencha os pontos positivos e negativos");
-      return;
-    }
-
-    setIsSubmitting(true);
+    setSubmitting(true);
 
     try {
-      const response = await fetch("/api/reviews", {
+      const res = await fetch("/api/reviews", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           companyId: selectedCompany.id,
-          roleArea: formData.roleArea,
-          seniority: formData.seniority,
-          contractType: formData.contractType,
-          workMode: formData.workMode,
-          year: formData.year || undefined,
-          ratingOverall: rating,
-          pros: formData.pros,
-          cons: formData.cons,
+          roleArea,
+          seniority,
+          contractType,
+          workMode,
+          year,
+          ratingOverall,
+          pros,
+          cons,
         }),
       });
 
-      if (response.ok) {
-        alert("Review publicada com sucesso! ✅");
-        router.push(`/companies/${selectedCompany.id}`);
-      } else {
-        const error = await response.json();
-        alert(`Erro ao publicar review: ${error.error || "Tente novamente"}`);
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Erro ao publicar review.");
+        setSubmitting(false);
+        return;
       }
-    } catch (error) {
-      console.error("Error submitting review:", error);
-      alert("Erro ao publicar review. Tente novamente.");
-    } finally {
-      setIsSubmitting(false);
+
+      const review = await res.json();
+      router.push(`/companies/${review.company?.slug || selectedCompany.id}`);
+    } catch {
+      setError("Erro de conexão. Tente novamente.");
+      setSubmitting(false);
     }
-  };
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl text-center">
+        <p className="text-gray-500">Carregando...</p>
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl text-center">
+        <h1 className="text-2xl font-bold mb-4">Acesso restrito</h1>
+        <p className="text-gray-600 mb-4">
+          Você precisa estar logado para criar uma review.
+        </p>
+        <button
+          onClick={() => router.push("/login")}
+          className="bg-gradient-to-r from-green-500 to-orange-500 text-white px-6 py-2 rounded-lg font-medium"
+        >
+          Fazer Login
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F7F9FC] flex flex-col">
@@ -130,276 +215,189 @@ export default function NewReviewPage() {
 
       <main className="flex-1 py-12">
         <Container size="md">
-          {/* Header */}
           <div className="text-center mb-8">
             <h1 className="font-sora text-4xl font-bold text-[#0F172A] mb-3">
               Escrever Review
             </h1>
             <p className="text-[#64748B] text-lg">
-              Compartilhe sua experiência de forma anônima e ajude outros profissionais
+              Compartilhe sua experiência de forma anônima e ajude outros
+              profissionais
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Card principal do formulário */}
-            <div className="bg-white border border-[#E2E8F0] rounded-2xl p-8 shadow-sm">
-              {/* Empresa */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-[#0F172A] mb-2">
-                  Empresa *
-                </label>
-                {selectedCompany ? (
-                  <div className="flex items-center justify-between border border-[#E2E8F0] rounded-xl px-4 py-3 bg-[#F8FAFC]">
-                    <span className="text-[#0F172A] font-medium">
-                      {selectedCompany.name}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCompany(null)}
-                      className="text-[#64748B] hover:text-[#EF4444] transition-colors"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+              {error}
+            </div>
+          )}
+
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white border border-[#E2E8F0] rounded-2xl p-8 shadow-sm space-y-6"
+          >
+            <div ref={dropdownRef} className="relative">
+              <label className="block text-sm font-semibold text-[#0F172A] mb-2">
+                Empresa *
+              </label>
+              <input
+                type="text"
+                value={companySearch}
+                onChange={(e) => {
+                  setCompanySearch(e.target.value);
+                  setSelectedCompany(null);
+                  setShowDropdown(true);
+                }}
+                onFocus={() => setShowDropdown(true)}
+                placeholder="Digite o nome da empresa..."
+                className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+              />
+
+              {showDropdown && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {filteredCompanies.length === 0 ? (
+                    <div className="px-4 py-3 text-sm text-gray-500">
+                      Nenhuma empresa encontrada.
+                    </div>
+                  ) : (
+                    filteredCompanies.map((company) => (
+                      <button
+                        key={company.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCompany(company);
+                          setCompanySearch(company.name);
+                          setShowDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Digite o nome da empresa"
-                      className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
-                    />
-                    {isSearching && (
-                      <div className="absolute right-3 top-3">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#2563EB]"></div>
-                      </div>
-                    )}
-                    {companies.length > 0 && (
-                      <div className="absolute z-10 w-full mt-2 bg-white border border-[#E2E8F0] rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                        {companies.map((company) => (
-                          <button
-                            key={company.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedCompany(company);
-                              setSearchQuery("");
-                              setCompanies([]);
-                            }}
-                            className="w-full text-left px-4 py-3 hover:bg-[#F8FAFC] transition-colors text-[#0F172A]"
-                          >
-                            {company.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                        <span className="font-medium">{company.name}</span>
+                        {company.location && (
+                          <span className="text-sm text-gray-500 ml-2">
+                            {company.location}
+                          </span>
+                        )}
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
 
-              {/* Cargo e Senioridade */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-[#0F172A] mb-2">
-                    Cargo/Área *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.roleArea}
-                    onChange={(e) => setFormData({ ...formData, roleArea: e.target.value })}
-                    placeholder="Ex: Frontend Developer"
-                    className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-[#0F172A] mb-2">
-                    Senioridade *
-                  </label>
-                  <select
-                    value={formData.seniority}
-                    onChange={(e) => setFormData({ ...formData, seniority: e.target.value })}
-                    className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                    <option value="JR">Júnior</option>
-                    <option value="PL">Pleno</option>
-                    <option value="SR">Sênior</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Tipo de Contrato e Modo de Trabalho */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-[#0F172A] mb-2">
-                    Tipo de Contrato *
-                  </label>
-                  <select
-                    value={formData.contractType}
-                    onChange={(e) => setFormData({ ...formData, contractType: e.target.value })}
-                    className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                    <option value="CLT">CLT</option>
-                    <option value="PJ">PJ</option>
-                    <option value="ESTAGIO">Estágio</option>
-                    <option value="FREELA">Freelancer</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-[#0F172A] mb-2">
-                    Modo de Trabalho *
-                  </label>
-                  <select
-                    value={formData.workMode}
-                    onChange={(e) => setFormData({ ...formData, workMode: e.target.value })}
-                    className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                    <option value="REMOTO">Remoto</option>
-                    <option value="HIBRIDO">Híbrido</option>
-                    <option value="PRESENCIAL">Presencial</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Ano (Opcional) */}
-              <div className="mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
                 <label className="block text-sm font-semibold text-[#0F172A] mb-2">
-                  Ano (Opcional)
+                  Cargo/Área *
                 </label>
                 <input
-                  type="number"
-                  value={formData.year}
-                  onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                  placeholder="Ex: 2024"
-                  min="2000"
-                  max="2030"
-                  className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+                  type="text"
+                  value={roleArea}
+                  onChange={(e) => setRoleArea(e.target.value)}
+                  placeholder="Frontend Developer"
+                  className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3"
                 />
               </div>
-
-              {/* Avaliação com Estrelas */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-[#0F172A] mb-3">
-                  Avaliação Geral
-                </label>
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setRating(star)}
-                      onMouseEnter={() => setHoveredRating(star)}
-                      onMouseLeave={() => setHoveredRating(0)}
-                      className="transition-transform hover:scale-110"
-                    >
-                      <svg
-                        className={`w-10 h-10 transition-colors ${
-                          star <= (hoveredRating || rating)
-                            ? "text-[#FCD34D] fill-[#FCD34D]"
-                            : "text-[#E2E8F0]"
-                        }`}
-                        fill={star <= (hoveredRating || rating) ? "currentColor" : "none"}
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
-                        />
-                      </svg>
-                    </button>
-                  ))}
-                  <span className="ml-3 text-lg font-semibold text-[#0F172A]">
-                    {rating > 0 ? `${rating}.0` : ""}
-                  </span>
-                </div>
-              </div>
-
-              {/* Pontos Positivos */}
-              <div className="mb-6">
+              <div>
                 <label className="block text-sm font-semibold text-[#0F172A] mb-2">
-                  Pontos Positivos *
+                  Senioridade
                 </label>
-                <textarea
-                  value={formData.pros}
-                  onChange={(e) => setFormData({ ...formData, pros: e.target.value })}
-                  rows={5}
-                  placeholder="O que você gostou na empresa? (benefícios, cultura, ambiente, etc.)"
-                  className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#22C55E]/20 focus:border-[#22C55E] transition-all resize-none"
-                  required
-                />
+                <select
+                  value={seniority}
+                  onChange={(e) => setSeniority(e.target.value)}
+                  className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3"
+                >
+                  <option value="JR">Júnior</option>
+                  <option value="PL">Pleno</option>
+                  <option value="SR">Sênior</option>
+                </select>
               </div>
-
-              {/* Pontos Negativos */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-[#0F172A] mb-2">
-                  Pontos Negativos *
-                </label>
-                <textarea
-                  value={formData.cons}
-                  onChange={(e) => setFormData({ ...formData, cons: e.target.value })}
-                  rows={5}
-                  placeholder="O que precisa melhorar? (seja construtivo)"
-                  className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3 text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/20 focus:border-[#F59E0B] transition-all resize-none"
-                  required
-                />
-              </div>
-
-              {/* Aviso de Anonimato */}
-              <div className="bg-[#2563EB]/5 border border-[#2563EB]/20 rounded-xl p-4 mb-6">
-                <div className="flex items-start gap-3">
-                  <svg
-                    className="w-5 h-5 text-[#2563EB] flex-shrink-0 mt-0.5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <div>
-                    <h4 className="font-semibold text-[#2563EB] text-sm mb-1">
-                      Sua identidade está protegida
-                    </h4>
-                    <p className="text-[#64748B] text-sm">
-                      Esta review será publicada de forma 100% anônima. Não solicitamos nenhum dado pessoal identificável.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Botão de Submissão */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-[#22C55E] hover:bg-[#16A34A] text-white py-4 rounded-xl font-semibold text-lg transition-all hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-              >
-                {isSubmitting ? "Publicando..." : "Publicar Review Anonimamente"}
-              </button>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-[#0F172A] mb-2">
+                  Tipo de Contrato
+                </label>
+                <select
+                  value={contractType}
+                  onChange={(e) => setContractType(e.target.value)}
+                  className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3"
+                >
+                  <option value="CLT">CLT</option>
+                  <option value="PJ">PJ</option>
+                  <option value="ESTAGIO">Estágio</option>
+                  <option value="FREELA">Freelancer</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-[#0F172A] mb-2">
+                  Modo de Trabalho
+                </label>
+                <select
+                  value={workMode}
+                  onChange={(e) => setWorkMode(e.target.value)}
+                  className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3"
+                >
+                  <option value="REMOTO">Remoto</option>
+                  <option value="HIBRIDO">Híbrido</option>
+                  <option value="PRESENCIAL">Presencial</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#0F172A] mb-2">
+                Ano de experiência
+              </label>
+              <input
+                type="number"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                min="2000"
+                max={new Date().getFullYear()}
+                className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#0F172A] mb-2">
+                Avaliação Geral
+              </label>
+              <StarRating value={ratingOverall} onChange={setRatingOverall} />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#0F172A] mb-2">
+                Pontos Positivos *
+              </label>
+              <textarea
+                rows={4}
+                value={pros}
+                onChange={(e) => setPros(e.target.value)}
+                placeholder="O que você gostou..."
+                className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#0F172A] mb-2">
+                Pontos Negativos *
+              </label>
+              <textarea
+                rows={4}
+                value={cons}
+                onChange={(e) => setCons(e.target.value)}
+                placeholder="O que precisa melhorar..."
+                className="w-full border border-[#E2E8F0] rounded-xl px-4 py-3"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-[#22C55E] hover:bg-[#16A34A] text-white py-4 rounded-xl font-semibold text-lg transition-all hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting ? "Publicando..." : "Publicar Review"}
+            </button>
           </form>
         </Container>
       </main>
