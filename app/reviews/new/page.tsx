@@ -125,8 +125,10 @@ export default function NewReviewPage() {
     e.preventDefault();
     setError("");
 
-    if (!selectedCompany) {
-      setError("Selecione uma empresa da lista.");
+    const normalizedCompanyName = companySearch.trim();
+
+    if (!selectedCompany && !normalizedCompanyName) {
+      setError("Informe o nome da empresa.");
       return;
     }
     if (!roleArea.trim()) {
@@ -149,7 +151,8 @@ export default function NewReviewPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          companyId: selectedCompany.id,
+          companyId: selectedCompany?.id,
+          companyName: selectedCompany ? undefined : normalizedCompanyName,
           roleArea,
           seniority,
           contractType,
@@ -169,7 +172,15 @@ export default function NewReviewPage() {
       }
 
       const review = await res.json();
-      router.push(`/companies/${review.company?.slug || selectedCompany.id}`);
+      const companyIdentifier = review.company?.slug ?? selectedCompany?.id;
+
+      if (!companyIdentifier) {
+        setError("Review criada, mas não foi possível redirecionar a empresa.");
+        setSubmitting(false);
+        return;
+      }
+
+      router.push(`/companies/${companyIdentifier}`);
     } catch {
       setError("Erro de conexão. Tente novamente.");
       setSubmitting(false);
@@ -247,8 +258,13 @@ export default function NewReviewPage() {
               {showDropdown && (
                 <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   {filteredCompanies.length === 0 ? (
-                    <div className="px-4 py-3 text-sm text-gray-500">
-                      Nenhuma empresa encontrada.
+                    <div className="px-4 py-3 text-sm text-gray-500 space-y-1">
+                      <p>Nenhuma empresa encontrada.</p>
+                      {companySearch.trim() && (
+                        <p className="text-[#2563EB]">
+                          Ao publicar, vamos criar essa empresa automaticamente.
+                        </p>
+                      )}
                     </div>
                   ) : (
                     filteredCompanies.map((company) => (

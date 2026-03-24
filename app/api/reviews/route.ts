@@ -4,6 +4,7 @@ import { ContractType, Seniority, WorkMode } from "@prisma/client";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { findOrCreateCompanyByName } from "@/lib/services/companies";
 import { createReview } from "@/lib/services/reviews";
 
 export async function POST(request: NextRequest) {
@@ -17,6 +18,7 @@ export async function POST(request: NextRequest) {
 
     const {
       companyId,
+      companyName,
       roleArea,
       seniority,
       contractType,
@@ -29,7 +31,6 @@ export async function POST(request: NextRequest) {
 
     // Validações básicas
     if (
-      !companyId ||
       !roleArea ||
       !seniority ||
       !contractType ||
@@ -44,6 +45,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!companyId && !String(companyName || "").trim()) {
+      return NextResponse.json(
+        { error: "Informe uma empresa para publicar a review" },
+        { status: 400 }
+      );
+    }
+
     const numericRating = Number(ratingOverall);
     if (Number.isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
       return NextResponse.json(
@@ -52,20 +60,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar se a empresa existe
-    const company = await prisma.company.findUnique({
-      where: { id: companyId },
-    });
+    let resolvedCompanyId: string;
 
-    if (!company) {
-      return NextResponse.json(
-        { error: "Empresa não encontrada" },
-        { status: 404 }
-      );
+    if (companyId) {
+      const company = await prisma.company.findUnique({
+        where: { id: companyId },
+      });
+
+      if (!company) {
+        return NextResponse.json(
+          { error: "Empresa não encontrada" },
+          { status: 404 }
+        );
+      }
+
+      resolvedCompanyId = company.id;
+    } else {
+      const company = await findOrCreateCompanyByName(String(companyName));
+      resolvedCompanyId = company.id;
     }
 
     const review = await createReview({
-      companyId,
+      companyId: resolvedCompanyId,
       userId: session.user.id,
       roleArea,
       seniority: String(seniority).toUpperCase() as Seniority,
