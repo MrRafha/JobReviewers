@@ -73,15 +73,3 @@ Observacao: os SVGs em public foram removidos localmente. Validar se a remocao e
 6. Opcional de produto:
    - coletar cidade/estado no fluxo de nova empresa (pos-MVP)
    - revisar moderacao para empresas criadas automaticamente
-
-## Sugestao de proximo commit
-
-feat: auto-cria empresa ao publicar review com nome inexistente
-
-Descricao sugerida:
-
-- aceita companyName no endpoint de reviews quando companyId nao existir
-- resolve empresa por nome case-insensitive
-- cria company com slug unico quando nao encontrada
-- atualiza formulario de nova review para permitir nome livre e feedback no dropdown
-- mantem compatibilidade com fluxo atual de selecao de empresa existente
