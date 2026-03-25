@@ -1,187 +1,271 @@
-# Design System — JobReviewers
 
-> O design que transmite confiança através da simplicidade. Sistema visual focado na dupla azul-verde "Confiança" 💙💚
+````md
+# 🎯 Design System — JobReviewers (v2)
 
----
+> Transparência com responsabilidade.  
+Sistema visual focado em **clareza, confiança e legibilidade** para um produto centrado em reviews.
+
 
 ## 🎨 Paleta de Cores
 
-### Paleta "Confiança" (Core)
-
-Nossa identidade visual gira em torno de duas cores principais que representam confiança (azul) e positividade (verde):
+### 🌿 Base (Light UI)
 
 ```css
-/* Backgrounds */
---bg-0: #f7f9fc /* App background - levemente azulado */ --bg-1: #ffffff
-  /* Cards/Surface */ --bg-input: #f1f5f9 /* Inputs e campos */ /* Borders */
-  --border: #e2e8f0 /* Dividers e contornos */ /* Text Hierarchy */
-  --text-primary: #0f172a /* Títulos e texto principal */
-  --text-secondary: #334155 /* Subtítulos */ --text-muted: #64748b
-  /* Metadados e hints */;
-```
+/* Background */
+--bg-base: #FAFAFA;        /* Fundo principal (off-white) */
+--bg-surface: #FFFFFF;     /* Cards e superfícies */
+--bg-subtle: #F8FAFC;      /* Seções leves (quase invisível) */
 
-### Cores de Marca (Brand)
+/* Borders */
+--border: #E2E8F0;
 
-```css
---brand-blue: #2563eb /* Confiança, principal */ --brand-blue-hover: #1d4ed8
-  --brand-blue-bg: #dbeafe /* Badges e highlights */ --brand-green: #22c55e
-  /* Ação, verificado, sucesso */ --brand-green-hover: #16a34a
-  --brand-green-bg: #dcfce7 /* Background Escuro (Hero e seções de destaque) */
-  --bg-dark: #2b2d31 /* Usado no hero e seções escuras */;
-```
+/* Text */
+--text-primary: #0F172A;
+--text-secondary: #475569;
+--text-muted: #94A3B8;
+````
 
-### Semânticas
+---
+
+### 🔵 Cores de Marca
 
 ```css
---success: #22c55e /* = brand-green */ --alert-orange: #f59e0b
-  /* Apenas para avisos/ratings quando necessário */ --error: #ef4444
-  /* Destrutivo */ --info: #2563eb /* = brand-blue */;
+--brand-primary: #2563EB;       /* Azul - confiança */
+--brand-primary-hover: #1D4ED8;
+
+--brand-accent: #7C3AED;        /* Roxo - tecnologia / destaque */
+
+--brand-success: #10B981;       /* Verde - verificado */
+--brand-success-bg: #DCFCE7;
 ```
 
 ---
 
+### ⚠️ Semânticas
+
+```css
+--success: #10B981;
+--warning: #F59E0B;
+--error: #EF4444;
+--info: #2563EB;
+```
+
+
+## 🧠 Direção Visual
+
+### Conceito
+
+> Uma única superfície contínua com elementos emergindo dela.
+
+### Princípios
+
+* Fundo único (sem “quebras” pesadas)
+* Separação por:
+
+  * espaçamento
+  * tipografia
+  * contraste leve
+* Cards com leve elevação
+* Design focado em leitura (reviews são o core)
+
 ## 🔧 Componentes
 
-### Botões
+### 🔘 Botões
 
-**Primary (Azul)**
+#### Primary
 
-- Background: `--brand-blue`
-- Hover: `--brand-blue-hover`
-- Text: `#FFFFFF`
-- Radius: `16px` (rounded-2xl)
-- Shadow: `shadow-lg`
-- Uso: CTAs principais
+* Background: `--brand-primary`
+* Hover: `--brand-primary-hover`
+* Text: `#FFFFFF`
+* Radius: `12px`
+* Height: `48px`
+* Uso: CTAs principais
 
-**Success (Verde)**
+---
 
-- Background: `--brand-green`
-- Hover: `--brand-green-hover`
-- Text: `#FFFFFF`
-- Radius: `16px`
-- Uso: Confirmações, publicar review
+#### Secondary
 
-**Secondary**
+* Background: transparente
+* Border: `1px solid --border`
+* Text: `--text-primary`
+* Hover: leve bg `#F1F5F9`
 
-- Background: `--bg-1`
-- Border: `--border`
-- Text: `--text-primary`
-- Hover: leve escurecimento do bg
+---
 
-**Danger**
+#### Ghost
 
-- Background: `--error`
-- Text: `#FFFFFF`
-- Uso: Excluir, ocultar
+* Background: transparente
+* Text: `--text-secondary`
+* Hover: `#F8FAFC`
 
-### Cards
+---
 
-**CompanyCard**
+#### Danger
 
-- Background: `--bg-1` (branco)
-- Border: `--border` (1px)
-- Radius: `20px` (rounded-3xl)
-- Shadow: `shadow-sm`
-- Hover: `scale-[1.02]` + `shadow-md`
-- Padding: `p-6`
+* Background: `--error`
+* Text: `#FFFFFF`
 
-**GlassmorphCard** (usado em Hero/Garantias)
+---
 
-- Background: `bg-white/10`
-- Backdrop: `backdrop-blur-sm`
-- Border: `border-white/20`
-- Hover: `bg-white/15`
-- Ícones: Fundo colorido sutil (azul/verde com 3% opacity)
-- Uso: cards sobre background escuro (#2B2D31)
+### 🧱 Cards
 
-### Inputs
+#### Default Card
 
-**Search Bar (Hero)**
+* Background: `--bg-surface`
+* Border: `1px solid --border`
+* Radius: `20px`
+* Padding: `24px`
+* Shadow:
 
-- Background: `--bg-1` (branco)
-- Border: `--border`
-- Focus ring: `ring-white/50` (2px)
-- Radius: `20px` (rounded-2xl)
-- Shadow: `shadow-lg`
-- Padding: `px-6 py-5`
-- Icon: esquerda com `pl-12`
+```css
+0 10px 30px rgba(0, 0, 0, 0.05)
+```
 
-**Form Inputs**
+---
 
-- Background: `--bg-input`
-- Border: `--border`
-- Focus ring: `--brand-blue` com opacity
-- Radius: `12px`
+#### Highlight Card (Review principal)
 
-### Badges
+* Padding: `28px`
+* Shadow:
 
-**Verificado**: bg `--brand-green-bg` + text `--brand-green`  
-**Info**: bg `--brand-blue-bg` + text `--brand-blue`  
-**Neutro**: bg `--bg-0` + text `--text-secondary`
+```css
+0 20px 50px rgba(0, 0, 0, 0.08)
+```
 
-### Ratings (Estrelas)
+👉 Usado para:
 
-- Ativa: `--alert-orange` (#F59E0B)
-- Inativa: `--text-muted` com opacity
+* preview de review
+* foco do produto
+
+---
+
+### 🏷 Badges
+
+* **Verificado**
+
+  * bg: `--brand-success-bg`
+  * text: `--brand-success`
+
+* **Info**
+
+  * bg: `#EEF2FF`
+  * text: `--brand-primary`
+
+* **Neutro**
+
+  * bg: `#F1F5F9`
+  * text: `--text-secondary`
+
+---
+
+### ⭐ Ratings
+
+* Ativo: `#F59E0B`
+* Inativo: `#CBD5F5`
+
+---
+
+### 🔍 Inputs
+
+#### Default
+
+* Background: `--bg-surface`
+* Border: `--border`
+* Radius: `12px`
+* Focus:
+
+```css
+ring: 2px solid rgba(37, 99, 235, 0.2)
+```
 
 ---
 
 ## 📐 Tipografia
 
-Usamos uma combinação de fontes que equilibra personalidade (Sora) com legibilidade (Inter):
+### Fontes
 
-**Sora** → Títulos e headings (weights: 400, 500, 600, 700)  
-**Inter** → Textos corridos, UI elements (weights: 300, 400, 500, 600, 700)
+* **Sora** → títulos
+* **Inter** → corpo
+
+---
 
 ### Hierarquia
 
 ```
-H1 (Sora):
-  - text-4xl (36px) / font-bold
-  - Uso: títulos principais de página
+H1:
+48px / bold / Sora
 
-H2 (Sora):
-  - text-2xl (24px) / font-semibold
-Sistema baseado em Tailwind (múltiplos de 4px/0.25rem):
+H2:
+32px / semibold / Sora
 
-- **Container principal**: `max-w-7xl` (1280px) com `mx-auto`
-- **Padding lateral**: `px-4 md:px-6` (16-24px responsivo)
-- **Cards**: `p-6` (24px)
-- **Gap entre elementos**: `gap-6` ou `gap-8` para grids
-- **Margins verticais**: `mb-3` (títulos), `mb-6` (seções), `mb-12` (blocos grandes)
+H3:
+24px / semibold / Sora
 
-### Hero Section
-- Altura: `h-[380px]`
-- Background principal sempre `#F7F9FC` (levemente azulado)
-- **Azul** para confiança, links, ações primárias
-- **Verde** para sucesso, verificado, CTAs positivos
-- Gradiente azul→verde **apenas** no hero e seções de destaque
-- Glassmorphism (bg-white/10 + backdrop-blur) sobre gradientes
-- Laranja **só** para ratings/estrelas e alertas críticos
+Body:
+16px / regular / Inter
 
-### ❌ Evitar
-- Laranja como cor principal (ficou no passado)
-- Cores saturadas ocupando áreas grandes
-- Gradientes em botões pequenos ou textos
-- Mais de um gradiente visível ao mesmo tempo
-- Ignorar a hierarquia de fontes (Sora para títulos, Inter para corpo)nt-normal
-  - leading-relaxed para parágrafos longos
-  - Uso: descrições, metadados
+Small:
+14px / Inter
 
-Subtitle/Hero (Inter):
-  - text-xl (20px) / font-normal
-  - tracking-wide para dar respiro
-  - Uso: subtítulos de destaque
+Micro:
+12px / Inter
 ```
 
 ---
 
-## 📏 Espaçamento
+## 📏 Layout e Espaçamento
 
-- Base: múltiplos de `8px`
-- Container: max-width `1200px`
-- Padding lateral: `16-24px`
-- Cards: padding interno `16-20px`
+### Grid
+
+* Max width: `1200px`
+* 12 colunas
+* gutter: `24px`
+
+---
+
+### Espaçamento
+
+* Seções: `96px – 120px`
+* Elementos: `16 / 24 / 32px`
+
+---
+
+### Container
+
+```css
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 24px;
+```
+
+---
+
+## 🌈 Background Strategy
+
+### Base
+
+```css
+background: #FAFAFA;
+```
+
+---
+
+### Gradientes sutis (opcional)
+
+```css
+background:
+radial-gradient(circle at 20% 0%, #e0e7ff, transparent 40%),
+radial-gradient(circle at 80% 20%, #ede9fe, transparent 40%),
+#FAFAFA;
+```
+
+---
+
+### CTA Section
+
+```css
+background: linear-gradient(to right, #EEF2FF, #F5F3FF);
+```
 
 ---
 
@@ -189,104 +273,118 @@ Subtitle/Hero (Inter):
 
 ### ✅ Fazer
 
-- UI com base neutra (cinza/branco)
-- Verde para positivo (verificado, sucesso)
-- Laranja para atenção/ratings
-- Gradiente apenas em CTAs e destaques
-  Arquivo**: `/public/logo.png`  
-  **Dimensões no Hero**: `h-20 w-28` (80x112px)  
-  **Uso\*\*: Clicável, sempre linka para home (`/`)
-
-Funciona bem sobre:
-
-- Gradiente azul-verde (hero)
-- Fundo branco/cinza claro
-- Backgrounds escuros (tem contraste)
+* Priorizar legibilidade
+* Usar azul para ação/confiança
+* Usar verde para validação
+* Usar espaços ao invés de blocos pesados
+* Destacar reviews como elemento principal
 
 ---
 
-## 🏗️ Componentes Reutilizáveis
+### ❌ Evitar
 
-### CompanyCard
+* Seções com fundo pesado e separado
+* Muitos gradientes
+* UI fragmentada
+* Cores saturadas demais
+* Estilo “landing genérica”
 
-**Localização**: `/components/CompanyCard.tsx`
+---
+
+## 🧩 Componentes-chave do produto
+
+### Review Card (CORE)
+
+Deve conter:
+
+* Empresa
+* Nota
+* Cargo
+* Modelo (remoto/presencial)
+* Prós
+* Contras
+* Conselho
+* Badge verificado
+
+👉 Elemento mais importante do sistema
+
+---
+
+### Company Card
 
 ```tsx
 interface CompanyCardProps {
   name: string;
-  location: string;
   rating: number;
   reviewCount: number;
+  location?: string;
 }
 ```
 
-**Uso**: Grid de empresas na home, listagens
 
----
+## 🏗 Organização no Figma
 
-## 💻 Tokens CSS Atualizados
+### Página 1 — Foundations
 
-```css
-:root {
-  /* Backgrounds */
-  --bg-0: #f7f9fc;
-  --bg-1: #ffffff;
-  --bg-input: #f1f5f9;
-  --bg-dark: #2b2d31; /* Hero e seções escuras */
-  --border: #e2e8f0;
+* Colors
+* Typography
+* Spacing
 
-  /* Text */
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
+### Página 2 — Components
 
-  /* Brand Azul (Confiança) */
-  --brand-blue: #2563eb;
-  --brand-blue-hover: #1d4ed8;
-  --brand-blue-bg: #dbeafe;
+* Buttons
+* Cards
+* Badges
+* Inputs
+* Review Card
 
-  /* Brand Verde (Ação/Sucesso) */
-  --brand-green: #22c55e;
-  --brand-green-hover: #16a34a;
-  --brand-green-bg: #dcfce7;
+### Página 3 — Landing
 
-  /* Semânticas */
-  --alert-orange: #f59e0b;
-  --error: #ef4444;
-
-  /* Radius */
-  --radius-xl: 20px;
-  --radius-lg: 16px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-}
-```
+* Hero
+* Problema
+* Solução
+* Como funciona
+* Review preview
+* Segurança
+* CTA
 
 ---
 
 ## 📝 Notas de Implementação
 
-- Fontes carregadas via `next/font/google` no layout
-- Classes do Tailwind preferidas sobre CSS custom quando possível
-- Background escuro: `bg-[#2B2D31]` para hero e seções de destaque
-- Glows sutis: `bg-[#2563EB] opacity-[0.08] blur-[120px]` para assinatura visual
-- Glassmorphism: `bg-white/10 backdrop-blur-sm border-white/20`
-- Ícones com fundo colorido: `bg-[#2563EB]/[0.03]` ou `bg-[#22C55E]/[0.03]`
-- Search sem botão visível (Enter key only) para UX minimalista
-- 3 garantias de segurança: Anônimo, Moderado, Sem expor pessoas
+* Tailwind como base
+* Evitar CSS custom desnecessário
+* Sombras leves
+* Transições suaves:
 
-**Última atualização**: Jan 2026 (protótipo home implementado)-brand-green: #22C55E;
---brand-orange: #F59E0B;
---brand-dark: #1F2937;
+```css
+transition: all 0.2s ease;
+```
 
---error: #EF4444;
---info: #3B82F6;
+---
 
---radius: 16px;
---radius-sm: 12px;
---radius-xs: 8px;
-}
+## 🧠 Filosofia Final
+
+> O design não deve chamar mais atenção que o conteúdo.
+
+O objetivo do JobReviewers é parecer:
+
+* confiável
+* útil
+* honesto
+* claro
+
+---
+
+**Última atualização:** Março 2026
 
 ```
 
+---
+
+Se quiser, posso agora:
+👉 transformar isso em **tailwind.config.js pronto**  
+👉 ou já integrar com seu projeto Next.js direto
+
+Só falar 🚀
 ```

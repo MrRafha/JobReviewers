@@ -1,330 +1,224 @@
 "use client";
 
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import CompanyCard from "@/components/CompanyCard";
+import { Container, Footer, Navbar } from "@/components/layout";
+import ErrorCard from "@/components/ui/ErrorCard";
+import {
+  HeroSection,
+  BenefitsSection,
+  SolutionSection,
+  HowItWorksSection,
+  SocialProofSection,
+  CTASection,
+} from "@/components/sections";
+
+interface Company {
+  id: string;
+  name: string;
+  slug: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+}
+
+interface FeaturedReview {
+  id: string;
+  rating: number;
+  position: string;
+  positives: string;
+  negatives: string;
+  date: string;
+  companyName: string;
+  authorHandle: string;
+  workMode: string;
+}
+
+const fallbackReview: FeaturedReview = {
+  id: "fallback",
+  rating: 5,
+  position: "Analista de Sistemas",
+  positives: "Ótimo ambiente de trabalho e boa colaboração entre as equipes.",
+  negatives: "Nada relevante a apontar no momento.",
+  date: new Date().toISOString(),
+  companyName: "TechSoft Solutions",
+  authorHandle: "Anônimo",
+  workMode: "HIBRIDO",
+};
 
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const [isNewReviewExpanded, setIsNewReviewExpanded] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [companiesUnavailable, setCompaniesUnavailable] = useState(false);
+  const [featuredReview, setFeaturedReview] = useState<FeaturedReview | null>(
+    null
+  );
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implementar busca de empresas
-    console.log("Buscar:", searchQuery);
+  // Fetch companies based on active search
+  useEffect(() => {
+    async function fetchCompanies() {
+      setLoadingCompanies(true);
+      setCompaniesUnavailable(false);
+
+      try {
+        const query = activeSearch.trim()
+          ? `?search=${encodeURIComponent(activeSearch.trim())}`
+          : "?limit=6";
+        const res = await fetch(`/api/companies${query}`);
+
+        if (!res.ok) {
+          if (res.status === 503) {
+            setCompaniesUnavailable(true);
+          }
+          throw new Error("Falha ao buscar empresas");
+        }
+
+        const data = await res.json();
+        setCompanies(data);
+      } catch {
+        setCompanies([]);
+      } finally {
+        setLoadingCompanies(false);
+      }
+    }
+
+    fetchCompanies();
+  }, [activeSearch]);
+
+  // Fetch featured review on mount
+  useEffect(() => {
+    async function fetchFeaturedReview() {
+      try {
+        const res = await fetch("/api/reviews?limit=1");
+
+        if (!res.ok) {
+          throw new Error("Falha ao buscar review em destaque");
+        }
+
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setFeaturedReview(data[0]);
+          return;
+        }
+
+        setFeaturedReview(fallbackReview);
+      } catch {
+        setFeaturedReview(fallbackReview);
+      }
+    }
+
+    fetchFeaturedReview();
+  }, []);
+
+  const handleHeroSearch = (query: string) => {
+    setActiveSearch(query);
+    const companiesSection = document.getElementById("empresas");
+    if (companiesSection) {
+      companiesSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
-  // Dados mockados
-  const mockCompanies = [
-    {
-      name: "Nubank",
-      location: "São Paulo, SP",
-      rating: 4.5,
-      reviewCount: 127,
-    },
-    { name: "IFPI", location: "Teresina, PI", rating: 3.8, reviewCount: 45 },
-    { name: "Samsung", location: "Campinas, SP", rating: 4.2, reviewCount: 89 },
-    {
-      name: "Mercado Livre",
-      location: "São Paulo, SP",
-      rating: 4.1,
-      reviewCount: 203,
-    },
-    { name: "iFood", location: "Osasco, SP", rating: 3.9, reviewCount: 156 },
-    { name: "Ambev", location: "São Paulo, SP", rating: 4.0, reviewCount: 78 },
-    { name: "Globo", location: "Rio de Janeiro, RJ", rating: 3.7, reviewCount: 34 },
-    { name: "Totvs", location: "São Paulo, SP", rating: 4.3, reviewCount: 92 },
-    { name: "XP Investimentos", location: "São Paulo, SP", rating: 4.4, reviewCount: 110 },
-  ];
+  const handleRetryCompanies = () => {
+    const query = activeSearch.trim()
+      ? `?search=${encodeURIComponent(activeSearch.trim())}`
+      : "?limit=6";
+    fetch(`/api/companies${query}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setCompanies(data);
+        setCompaniesUnavailable(false);
+      })
+      .catch(() => setCompaniesUnavailable(true));
+  };
 
   return (
-    <div className="min-h-screen bg-[#F7F9FC]">
-      {/* Seção Hero com background escuro */}
-      <div className="bg-[#2B2D31] rounded-b-[40px] shadow-xl h-[380px] relative overflow-hidden">
-        {/* Glow sutil azul (esquerda) */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-[#2563EB] opacity-[0.08] blur-[120px] rounded-full"></div>
-        {/* Glow sutil verde (direita) */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#22C55E] opacity-[0.08] blur-[120px] rounded-full"></div>
+    <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)]">
+      <Navbar />
 
-        <div className="flex flex-col items-center justify-center px-4 pt-10 h-full relative z-10">
-          <div className="w-full max-w-3xl flex flex-col items-center">
-            {/* Logo JR - Clicável */}
-            <Link
-              href="/"
-              className="mb-6 transition-transform hover:scale-105"
-            >
-              <img
-                src="/logo.png"
-                alt="JobReviewers Logo"
-                className="h-20 w-28"
-              />
-            </Link>
+      <main>
+        {/* Hero Section */}
+        <HeroSection
+          onSearch={handleHeroSearch}
+          searchValue={searchInput}
+          onSearchInputChange={setSearchInput}
+        />
 
-            {/* Nome do Produto */}
-            <h1 className="font-sora text-4xl font-bold text-white mb-3">
-              Job Reviewers
-            </h1>
+        {/* Benefits Section */}
+        <BenefitsSection />
 
-            {/* Subtítulo forte */}
-            <p
-              className="text-center text-white text-xl font-normal tracking-wide mb-8"
-              style={{ opacity: 0.85 }}
-            >
-              Reviews anônimas e moderadas sobre empresas.
-            </p>
+        {/* Solution Section */}
+        <SolutionSection />
 
-            {/* Barra de pesquisa e botão de nova review - Centralizados e dinâmicos */}
-            <div className="w-full max-w-2xl flex items-center justify-center gap-3">
-              {/* Barra de pesquisa - Compacta e expansível */}
-              <form 
-                onSubmit={handleSearch} 
-                className={`transition-all duration-600 ease-in-out ${
-                  isSearchExpanded ? "flex-1" : "flex-none"
-                }`}
+        {/* How It Works Section */}
+        <HowItWorksSection />
+
+        {/* Social Proof & Security Section */}
+        <SocialProofSection featuredReview={featuredReview} />
+
+        {/* Companies Section */}
+        <section id="empresas" className="py-16 sm:py-20">
+          <Container>
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 className="font-sora text-3xl font-semibold text-[var(--text-primary)] sm:text-4xl">
+                  {activeSearch.trim() ? "Resultados da Busca" : "Empresas em Destaque"}
+                </h2>
+                <p className="mt-2 text-sm text-[var(--text-secondary)] sm:text-base">
+                  {activeSearch.trim()
+                    ? `Mostrando empresas para "${activeSearch.trim()}".`
+                    : "Pesquise e descubra as melhores empresas para trabalhar."}
+                </p>
+              </div>
+              <Link
+                href="/companies"
+                className="text-sm font-semibold text-[var(--brand-primary)] transition hover:text-[var(--brand-primary-hover)]"
               >
-                <div
-                  className={`relative transition-all duration-600 ease-in-out ${
-                    isSearchExpanded ? "w-full" : "w-16"
-                  }`}
-                  onMouseEnter={() => {
-                    setIsSearchExpanded(true);
-                    setIsNewReviewExpanded(false);
-                  }}
-                  onMouseLeave={() => {
-                    if (!searchQuery) setIsSearchExpanded(false);
-                  }}
-                >
-                  {/* Ícone de busca - Aparece quando compactado */}
-                  {!isSearchExpanded && (
-                    <button
-                      type="button"
-                      onClick={() => setIsSearchExpanded(true)}
-                      className="w-16 h-16 bg-white/[0.01] backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center shadow-lg hover:scale-105 hover:bg-white/[0.08] transition-all"
-                    >
-                      <svg
-                        className="w-7 h-7 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
-                    </button>
-                  )}
-
-                  {/* Input expandido */}
-                  {isSearchExpanded && (
-                    <div className="relative animate-in fade-in slide-in-from-left-2 duration-800">
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Pesquisar empresa (ex.: Nubank, IFPI, Samsung...)"
-                        className="w-full px-5 py-4 pl-12 text-base bg-white/10 backdrop-blur-md rounded-full focus:outline-none focus:ring-2 focus:ring-white/30 shadow-lg placeholder:text-white/60 text-white border border-white/20"
-                        autoFocus
-                      />
-                      {/* Ícone de busca dentro do input */}
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                        <svg
-                          className="w-5 h-5 text-white/70"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </form>
-
-              {/* Botão de Nova Review - Expansível */}
-              <Link 
-                href="/reviews/new"
-                className={`transition-all duration-600 ease-in-out ${
-                  isNewReviewExpanded ? "flex-1" : "flex-none"
-                }`}
-              >
-                <div
-                  className={`relative transition-all duration-800 ease-in-out ${
-                    isNewReviewExpanded ? "w-full" : "w-16"
-                  }`}
-                  onMouseEnter={() => {
-                    setIsNewReviewExpanded(true);
-                    setIsSearchExpanded(false);
-                  }}
-                  onMouseLeave={() => setIsNewReviewExpanded(false)}
-                >
-                  {/* Ícone compacto */}
-                  {!isNewReviewExpanded && (
-                    <div className="w-16 h-16 bg-[#22C55E]/[0.01] backdrop-blur-sm border border-[#22C55E]/20 rounded-full flex items-center justify-center shadow-lg hover:scale-105 hover:bg-[#22C55E]/[0.08] transition-all cursor-pointer">
-                      <svg
-                        className="w-6 h-6 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                        />
-                      </svg>
-                    </div>
-                  )}
-
-                  {/* Botão expandido */}
-                  {isNewReviewExpanded && (
-                    <div className="w-full h-16 bg-[#22C55E]/[0.03] backdrop-blur-md border border-[#22C55E]/20 rounded-full flex items-center px-5 shadow-lg hover:bg-[#22C55E]/[0.08] transition-all cursor-pointer overflow-hidden">
-                      <svg
-                        className="w-5 h-5 text-white flex-shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                        />
-                      </svg>
-                      <span className="text-white font-medium text-base whitespace-nowrap ml-3 animate-in fade-in slide-in-from-left-3 duration-500 delay-100">
-                        Escrever nova review
-                      </span>
-                    </div>
-                  )}
-                </div>
+                Ver todas as empresas
               </Link>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Seção de Cards de Empresas */}
-      <div className="px-4 py-12">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold text-[#0F172A] mb-6">
-            Empresas recentes
-          </h2>
-          <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            style={{ filter: "drop-shadow(0 2px 8px rgba(37, 99, 235, 0.08))" }}
-          >
-            {mockCompanies.map((company, index) => (
-              <CompanyCard
-                key={index}
-                name={company.name}
-                location={company.location}
-                rating={company.rating}
-                reviewCount={company.reviewCount}
+            {loadingCompanies ? (
+              <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] py-14 text-center shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+                <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-[#bfdbfe] border-b-[var(--brand-primary)]" />
+                <p className="mt-4 text-[var(--text-secondary)]">
+                  Carregando empresas...
+                </p>
+              </div>
+            ) : companiesUnavailable ? (
+              <ErrorCard
+                title="Serviço temporariamente indisponível"
+                description="Não foi possível carregar as empresas neste momento. Tente novamente em alguns instantes."
+                onRetry={handleRetryCompanies}
+                retryLabel="Tentar novamente"
               />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Seção Garantias de Segurança */}
-      <div className="bg-[#2B2D31] py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">
-            Garantias de Segurança
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1 - Anonimato Total */}
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center transition-all hover:bg-white/15">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-[#2563EB]/[0.03] rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
+            ) : companies.length > 0 ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {companies.map((company) => (
+                  <CompanyCard key={company.id} {...company} />
+                ))}
               </div>
-              <h3 className="font-sora text-xl font-semibold text-white mb-3">
-                Anônimo
-              </h3>
-              <p className="text-white/80 text-sm leading-relaxed">
-                Sua identidade nunca será revelada. Sistema 100% anônimo.
-              </p>
-            </div>
-
-            {/* Card 2 - Moderado */}
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center transition-all hover:bg-white/15">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-[#22C55E]/[0.03] rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
+            ) : (
+              <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] py-14 text-center shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+                <p className="font-semibold text-[var(--text-primary)]">
+                  Nenhuma empresa encontrada
+                </p>
+                <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                  Tente outro termo de busca ou explore a listagem completa.
+                </p>
               </div>
-              <h3 className="font-sora text-xl font-semibold text-white mb-3">
-                Moderado
-              </h3>
-              <p className="text-white/80 text-sm leading-relaxed">
-                Todas as reviews passam por moderação antes de serem publicadas.
-              </p>
-            </div>
+            )}
+          </Container>
+        </section>
 
-            {/* Card 3 - Sem expor pessoas */}
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center transition-all hover:bg-white/15">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-[#2563EB]/[0.03] rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <h3 className="font-sora text-xl font-semibold text-white mb-3">
-                Sem expor pessoas
-              </h3>
-              <p className="text-white/80 text-sm leading-relaxed">
-                Nunca expomos dados pessoais de quem fez a review ou de pessoas
-                citadas nas reviews.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+        {/* CTA Final Section */}
+        <CTASection />
+      </main>
+
+      <Footer />
     </div>
   );
 }
