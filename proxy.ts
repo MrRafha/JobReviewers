@@ -2,13 +2,21 @@ import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 
-const publicRoutes = ["/companies", "/login", "/register"];
+const publicRoutes = [
+  "/",
+  "/companies",
+  "/login",
+  "/register",
+  "/forgot-password",
+];
 
 function isPublicRoute(pathname: string): boolean {
   if (publicRoutes.includes(pathname)) return true;
   if (pathname.startsWith("/companies/")) return true;
+  if (pathname.startsWith("/reset-password/")) return true;
   if (pathname.startsWith("/api/auth/")) return true;
   if (pathname.startsWith("/api/companies")) return true;
+  if (pathname.startsWith("/api/reviews")) return true;
   return false;
 }
 

@@ -1,6 +1,7 @@
 import { ContractType, Seniority, WorkMode } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { isDatabaseUnavailableError } from "@/lib/services/db-errors";
 
 export interface CreateReviewData {
   companyId: string;
@@ -91,11 +92,43 @@ export async function getReviewsByCompany(
     };
   } catch (error) {
     console.error("Error fetching reviews:", error);
+    if (isDatabaseUnavailableError(error)) {
+      throw error;
+    }
     return {
       reviews: [],
       totalCount: 0,
       totalPages: 0,
       currentPage: page,
     };
+  }
+}
+
+export async function getRecentPublicReviews(limit = 3) {
+  try {
+    const reviews = await prisma.review.findMany({
+      where: {
+        hidden: false,
+      },
+      orderBy: [{ ratingOverall: "desc" }, { createdAt: "desc" }],
+      take: limit,
+      include: {
+        company: {
+          select: {
+            name: true,
+          },
+        },
+        user: {
+          select: {
+            handle: true,
+          },
+        },
+      },
+    });
+
+    return reviews;
+  } catch (error) {
+    console.error("Error fetching recent public reviews:", error);
+    throw error;
   }
 }

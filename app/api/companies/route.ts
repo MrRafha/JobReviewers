@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { isDatabaseUnavailableError } from "@/lib/services/db-errors";
 import { getAllCompanies, searchCompanies } from "@/lib/services/companies";
+import { DB_UNAVAILABLE } from "@/lib/constants/error-messages";
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,6 +23,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(companies);
   } catch (error) {
     console.error("Error in companies API:", error);
+    if (isDatabaseUnavailableError(error)) {
+      return NextResponse.json(
+          { error: DB_UNAVAILABLE.MESSAGE },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Failed to fetch companies" },
       { status: 500 }

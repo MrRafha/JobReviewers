@@ -4,8 +4,50 @@ import { ContractType, Seniority, WorkMode } from "@prisma/client";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { isDatabaseUnavailableError } from "@/lib/services/db-errors";
 import { findOrCreateCompanyByName } from "@/lib/services/companies";
-import { createReview } from "@/lib/services/reviews";
+import { createReview, getRecentPublicReviews } from "@/lib/services/reviews";
+import { DB_UNAVAILABLE } from "@/lib/constants/error-messages";
+
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const limitParam = searchParams.get("limit");
+    const parsedLimit = limitParam ? parseInt(limitParam, 10) : 3;
+    const limit = Number.isFinite(parsedLimit)
+      ? Math.min(Math.max(parsedLimit, 1), 12)
+      : 3;
+
+    const reviews = await getRecentPublicReviews(limit);
+
+    const payload = reviews.map((review) => ({
+      id: review.id,
+      rating: review.ratingOverall,
+      position: review.roleArea,
+      positives: review.pros,
+      negatives: review.cons,
+      date: review.createdAt,
+      companyName: review.company.name,
+      authorHandle: review.user.handle,
+      workMode: review.workMode,
+    }));
+
+    return NextResponse.json(payload);
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    if (isDatabaseUnavailableError(error)) {
+      return NextResponse.json(
+        { error: DB_UNAVAILABLE.MESSAGE },
+        { status: 503 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Falha ao buscar reviews" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: NextRequest) {
   const session = await auth();

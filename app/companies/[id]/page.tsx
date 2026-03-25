@@ -4,11 +4,14 @@ import { notFound } from "next/navigation";
 
 import ReviewCard from "@/components/ReviewCard";
 import { Container, Footer, Navbar } from "@/components/layout";
+import ErrorCard from "@/components/ui/ErrorCard";
+import { DB_UNAVAILABLE } from "@/lib/constants/error-messages";
 import {
   getCompanyById,
   getCompanyBySlug,
   getCompanyStats,
 } from "@/lib/services/companies";
+import { isDatabaseUnavailableError } from "@/lib/services/db-errors";
 import { getReviewsByCompany } from "@/lib/services/reviews";
 
 interface CompanyPageProps {
@@ -31,16 +34,78 @@ const contractTypeMap: Record<string, string> = {
 export default async function CompanyPage({ params }: CompanyPageProps) {
   const { id } = await params;
 
-  const companyById = await getCompanyById(id);
-  const company = companyById ?? (await getCompanyBySlug(id));
+  let companyById = null;
+  let company = null;
+
+  try {
+    companyById = await getCompanyById(id);
+    company = companyById ?? (await getCompanyBySlug(id));
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return (
+        <div className="min-h-screen bg-[var(--bg-base)] flex flex-col">
+          <Navbar />
+          <main className="flex-1">
+            <Container className="py-16">
+              <ErrorCard
+                title={DB_UNAVAILABLE.TITLE}
+                description="Não foi possível carregar esta empresa agora. Tente novamente em alguns instantes."
+              />
+              <div className="mt-6 text-center">
+                <Link
+                  href="/"
+                  className="inline-flex rounded-xl bg-[var(--brand-primary)] px-5 py-2.5 font-semibold text-white transition-all hover:bg-[var(--brand-primary-hover)]"
+                >
+                  Voltar para início
+                </Link>
+              </div>
+            </Container>
+          </main>
+          <Footer />
+        </div>
+      );
+    }
+    throw error;
+  }
 
   if (!company) {
     notFound();
   }
 
   const companyId = company.id;
-  const stats = await getCompanyStats(companyId);
-  const { reviews } = await getReviewsByCompany(companyId, { limit: 10 });
+  let stats;
+  let reviews;
+
+  try {
+    stats = await getCompanyStats(companyId);
+    ({ reviews } = await getReviewsByCompany(companyId, { limit: 10 }));
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return (
+        <div className="min-h-screen bg-[var(--bg-base)] flex flex-col">
+          <Navbar />
+          <main className="flex-1">
+            <Container className="py-16">
+              <ErrorCard
+                title={DB_UNAVAILABLE.TITLE}
+                description="Não foi possível carregar as avaliações desta empresa neste momento."
+              />
+              <div className="mt-6 text-center">
+                <Link
+                  href={`/companies/${company.slug}`}
+                  className="inline-flex rounded-xl bg-[var(--brand-primary)] px-5 py-2.5 font-semibold text-white transition-all hover:bg-[var(--brand-primary-hover)]"
+                >
+                  Tentar novamente
+                </Link>
+              </div>
+            </Container>
+          </main>
+          <Footer />
+        </div>
+      );
+    }
+    throw error;
+  }
 
   const formattedReviews = reviews.map((review) => ({
     rating: review.ratingOverall,
@@ -54,11 +119,11 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
   }));
 
   return (
-    <div className="min-h-screen bg-[#F7F9FC] flex flex-col">
+    <div className="min-h-screen bg-[var(--bg-base)] flex flex-col">
       <Navbar />
 
       <main className="flex-1">
-        <div className="bg-[#2B2D31] py-12">
+        <div className="bg-gradient-to-r from-[var(--brand-primary)] to-[#1D4ED8] py-12">
           <Container>
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
               <div className="bg-white rounded-2xl p-4 w-24 h-24 flex items-center justify-center shadow-lg">
@@ -106,7 +171,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
 
               <Link
                 href={`/reviews/new?companyId=${companyId}&companyName=${encodeURIComponent(company.name)}`}
-                className="bg-[#22C55E]/10 hover:bg-[#22C55E]/20 text-white border border-[#22C55E]/30 px-6 py-3 rounded-full font-semibold transition-all hover:scale-105 flex items-center gap-2"
+                className="bg-white/15 hover:bg-white/20 text-white border border-white/25 px-6 py-3 rounded-full font-semibold transition-all hover:scale-105 flex items-center gap-2"
               >
                 <svg
                   className="w-5 h-5"
@@ -130,9 +195,9 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
         <Container className="py-12">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1">
-              <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 sticky top-24">
+              <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl p-6 sticky top-24">
                 <div className="text-center pb-6 border-b border-[#E2E8F0]">
-                  <div className="text-5xl font-bold text-[#0F172A] mb-2">
+                  <div className="text-5xl font-bold text-[var(--text-primary)] mb-2">
                     {stats.averageRating.toFixed(1)}
                   </div>
                   <div className="flex items-center justify-center gap-1 mb-2">
@@ -151,28 +216,28 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-[#64748B] text-sm">
+                  <p className="text-[var(--text-secondary)] text-sm">
                     Baseado em {stats.totalReviews} avaliações
                   </p>
                 </div>
 
                 <div className="pt-6">
-                  <h3 className="font-semibold text-[#0F172A] mb-4">
+                  <h3 className="font-semibold text-[var(--text-primary)] mb-4">
                     Distribuição de Avaliações
                   </h3>
                   <div className="space-y-3">
                     {stats.distribution.map((item) => (
                       <div key={item.stars} className="flex items-center gap-3">
-                        <span className="text-sm text-[#64748B] w-8">
+                        <span className="text-sm text-[var(--text-secondary)] w-8">
                           {item.stars}★
                         </span>
-                        <div className="flex-1 bg-[#F1F5F9] rounded-full h-2 overflow-hidden">
+                        <div className="flex-1 bg-[var(--bg-subtle)] rounded-full h-2 overflow-hidden">
                           <div
                             className="bg-[#FCD34D] h-full rounded-full transition-all"
                             style={{ width: `${item.percentage}%` }}
                           />
                         </div>
-                        <span className="text-sm text-[#64748B] w-12 text-right">
+                        <span className="text-sm text-[var(--text-secondary)] w-12 text-right">
                           {item.count}
                         </span>
                       </div>
@@ -184,11 +249,11 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
 
             <div className="lg:col-span-2">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-sora text-2xl font-bold text-[#0F172A]">
+                <h2 className="font-sora text-2xl font-bold text-[var(--text-primary)]">
                   Avaliações ({stats.totalReviews})
                 </h2>
 
-                <select className="border border-[#E2E8F0] rounded-xl px-4 py-2 text-sm text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all">
+                <select className="border border-[var(--border)] rounded-xl px-4 py-2 text-sm text-[var(--text-secondary)] bg-[var(--bg-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all">
                   <option value="recent">Mais Recentes</option>
                   <option value="helpful">Mais Úteis</option>
                   <option value="rating-high">Maior Avaliação</option>
@@ -203,9 +268,9 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 bg-white border border-[#E2E8F0] rounded-2xl">
+                <div className="text-center py-12 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl">
                   <svg
-                    className="w-16 h-16 mx-auto text-[#94A3B8] mb-4"
+                    className="w-16 h-16 mx-auto text-[var(--text-muted)] mb-4"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="1.5"
@@ -217,15 +282,15 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                       d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
                     />
                   </svg>
-                  <p className="text-[#64748B] font-semibold mb-2">
+                  <p className="text-[var(--text-secondary)] font-semibold mb-2">
                     Ainda não há avaliações
                   </p>
-                  <p className="text-[#94A3B8] text-sm mb-4">
+                  <p className="text-[var(--text-muted)] text-sm mb-4">
                     Seja o primeiro a avaliar {company.name}
                   </p>
                   <Link
                     href={`/reviews/new?companyId=${companyId}&companyName=${encodeURIComponent(company.name)}`}
-                    className="inline-block bg-[#22C55E] hover:bg-[#16A34A] text-white px-6 py-2 rounded-full font-semibold transition-all"
+                    className="inline-block bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white px-6 py-2 rounded-full font-semibold transition-all"
                   >
                     Escrever Primeira Review
                   </Link>

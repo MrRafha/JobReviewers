@@ -1,0 +1,60 @@
+import { Container } from "@/components/layout";
+
+const solutions = [
+  {
+    icon: "person_search",
+    title: "Para Profissionais",
+    description:
+      "Acesso exclusivo a avaliações de empresas para tomar melhores decisões de carreira.",
+  },
+  {
+    icon: "domain",
+    title: "Para Empresas",
+    description:
+      "Insights sobre seu ambiente de trabalho e cultura para melhorias contínuas.",
+  },
+  {
+    icon: "group",
+    title: "Para RHs",
+    description:
+      "Ferramentas para demonstrar transparência e atrair talentos com melhor estrutura.",
+  },
+];
+
+export default function SolutionSection() {
+  return (
+    <section className="py-12 sm:py-16">
+      <Container>
+        <div className="rounded-3xl border border-[var(--border)] bg-[var(--bg-surface)] p-8 shadow-sm sm:p-12">
+          <h2 className="font-sora text-3xl font-semibold text-[var(--text-primary)] mb-3">
+            Nossa Solução em Ação
+          </h2>
+          <p className="text-[var(--text-secondary)] text-lg max-w-2xl mb-8">
+            Uma plataforma transparente que beneficia todos na cadeia de talentos.
+          </p>
+
+          <div className="grid gap-6 sm:grid-cols-3">
+            {solutions.map((solution, index) => (
+              <div
+                key={index}
+                className="rounded-2xl border border-[var(--border)] bg-[var(--bg-base)] p-6 transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#DBEAFE] text-[var(--brand-primary)]">
+                  <span className="material-symbols-rounded" aria-hidden="true">
+                    {solution.icon}
+                  </span>
+                </div>
+                <h3 className="font-sora text-lg font-semibold text-[var(--text-primary)] mb-2">
+                  {solution.title}
+                </h3>
+                <p className="text-[var(--text-secondary)] leading-relaxed text-sm">
+                  {solution.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}

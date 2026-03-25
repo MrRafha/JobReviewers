@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { isDatabaseUnavailableError } from "@/lib/services/db-errors";
 
 function normalizeCompanyName(name: string): string {
   return name.trim().replace(/\s+/g, " ");
@@ -118,6 +119,9 @@ export async function getCompanyById(id: string) {
     return company;
   } catch (error) {
     console.error("Error fetching company:", error);
+    if (isDatabaseUnavailableError(error)) {
+      throw error;
+    }
     return null;
   }
 }
@@ -144,6 +148,9 @@ export async function getCompanyBySlug(slug: string) {
     return company;
   } catch (error) {
     console.error("Error fetching company:", error);
+    if (isDatabaseUnavailableError(error)) {
+      throw error;
+    }
     return null;
   }
 }
@@ -190,7 +197,7 @@ export async function getAllCompanies(limit?: number) {
     });
   } catch (error) {
     console.error("Error fetching companies:", error);
-    return [];
+    throw error;
   }
 }
 
@@ -236,7 +243,7 @@ export async function searchCompanies(query: string) {
     return companiesWithRating;
   } catch (error) {
     console.error("Error searching companies:", error);
-    return [];
+    throw error;
   }
 }
 
@@ -286,6 +293,9 @@ export async function getCompanyStats(companyId: string) {
     };
   } catch (error) {
     console.error("Error fetching company stats:", error);
+    if (isDatabaseUnavailableError(error)) {
+      throw error;
+    }
     return {
       averageRating: 0,
       totalReviews: 0,

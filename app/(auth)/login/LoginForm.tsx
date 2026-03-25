@@ -1,82 +1,45 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 
+import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function RegisterPage() {
+interface LoginFormProps {
+  callbackUrl?: string;
+  registered?: string;
+}
+
+export default function LoginForm({ callbackUrl, registered }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [birthdate, setBirthdate] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const calculateAge = (date: string): number => {
-    const today = new Date();
-    const birthDate = new Date(date);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
-
-    return age;
-  };
+  const resolvedCallbackUrl = callbackUrl || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    if (password !== confirmPassword) {
-      setError("As senhas não coincidem");
-      return;
-    }
-
-    if (password.length < 8) {
-      setError("A senha deve ter pelo menos 8 caracteres");
-      return;
-    }
-
-    if (!birthdate) {
-      setError("Por favor, insira sua data de nascimento");
-      return;
-    }
-
-    const age = calculateAge(birthdate);
-    if (age < 18) {
-      setError("Você precisa ter pelo menos 18 anos para se cadastrar.");
-      return;
-    }
-
-    if (age > 120) {
-      setError("Por favor, insira uma data de nascimento válida.");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Erro ao criar conta");
+      if (result?.error) {
+        setError("Email ou senha inválidos");
         return;
       }
 
-      router.push("/login?registered=true");
+      router.push(resolvedCallbackUrl);
+      router.refresh();
     } catch {
       setError("Erro de conexão. Tente novamente.");
     } finally {
@@ -101,7 +64,7 @@ export default function RegisterPage() {
           JobReviewers
         </h1>
         <p className="text-[var(--text-secondary)]">
-          Crie sua conta e comece a avaliar
+          Entre em sua conta para continuar
         </p>
       </div>
 
@@ -131,8 +94,15 @@ export default function RegisterPage() {
           </button>
 
           <h2 className="font-sora text-2xl font-bold text-[var(--text-primary)] mb-6 text-center">
-            Criar Conta
+            Login
           </h2>
+
+          {/* Success Message */}
+          {registered && (
+            <div className="mb-4 rounded-lg bg-[var(--brand-success-bg)] border border-[var(--brand-success)] p-3 text-sm text-[var(--brand-success)]">
+              Conta criada com sucesso! Faça login.
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (
@@ -142,7 +112,7 @@ export default function RegisterPage() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email Input */}
             <div>
               <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
@@ -158,24 +128,6 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* Birthdate Input */}
-            <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Data de Nascimento
-              </label>
-              <input
-                type="date"
-                value={birthdate}
-                onChange={(e) => setBirthdate(e.target.value)}
-                className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
-                max={new Date().toISOString().split("T")[0]}
-                required
-              />
-              <p className="text-xs text-[var(--text-muted)] mt-1">
-                Você deve ter pelo menos 18 anos
-              </p>
-            </div>
-
             {/* Password Input */}
             <div>
               <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
@@ -187,28 +139,25 @@ export default function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
                 placeholder="••••••••"
-                minLength={8}
                 required
               />
-              <p className="text-xs text-[var(--text-muted)] mt-1">
-                Mínimo de 8 caracteres
-              </p>
             </div>
 
-            {/* Confirm Password Input */}
-            <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Confirmar Senha
+            {/* Remember & Forgot Password */}
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 text-[var(--text-secondary)] cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-[var(--border)] bg-[var(--bg-base)] text-[var(--brand-primary)] focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20"
+                />
+                Lembrar-me
               </label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
-                placeholder="••••••••"
-                minLength={8}
-                required
-              />
+              <Link
+                href="/forgot-password"
+                className="text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] transition-colors font-medium"
+              >
+                Esqueceu a senha?
+              </Link>
             </div>
 
             {/* Submit Button */}
@@ -217,18 +166,18 @@ export default function RegisterPage() {
               disabled={loading}
               className="w-full bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white py-3 rounded-xl font-semibold transition-all hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed active:scale-95"
             >
-              {loading ? "Criando conta..." : "Criar Conta"}
+              {loading ? "Entrando..." : "Entrar"}
             </button>
           </form>
 
-          {/* Login Link */}
+          {/* Sign Up Link */}
           <p className="text-center text-sm text-[var(--text-secondary)] mt-6">
-            Já tem conta?{" "}
+            Não tem conta?{" "}
             <Link
-              href="/login"
+              href="/register"
               className="text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] font-semibold transition-colors"
             >
-              Fazer login
+              Criar conta
             </Link>
           </p>
         </div>
@@ -242,4 +191,4 @@ export default function RegisterPage() {
       </div>
     </div>
   );
-  }
+}
