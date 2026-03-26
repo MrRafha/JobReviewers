@@ -1,5 +1,7 @@
+import { ContractType, Seniority, WorkMode } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
-import { Seniority, ContractType, WorkMode } from "@prisma/client";
+import { isDatabaseUnavailableError } from "@/lib/services/db-errors";
 
 export interface CreateReviewData {
   companyId: string;
@@ -47,7 +49,8 @@ export async function getReviewsByCompany(
   const limit = options?.limit || 10;
   const skip = (page - 1) * limit;
 
-  let orderBy: { createdAt?: "desc" | "asc"; ratingOverall?: "desc" | "asc" } = { createdAt: "desc" };
+  let orderBy: { createdAt?: "desc" | "asc"; ratingOverall?: "desc" | "asc" } =
+    { createdAt: "desc" };
 
   if (options?.sortBy === "rating-high") {
     orderBy = { ratingOverall: "desc" };
@@ -89,11 +92,43 @@ export async function getReviewsByCompany(
     };
   } catch (error) {
     console.error("Error fetching reviews:", error);
+    if (isDatabaseUnavailableError(error)) {
+      throw error;
+    }
     return {
       reviews: [],
       totalCount: 0,
       totalPages: 0,
       currentPage: page,
     };
+  }
+}
+
+export async function getRecentPublicReviews(limit = 3) {
+  try {
+    const reviews = await prisma.review.findMany({
+      where: {
+        hidden: false,
+      },
+      orderBy: [{ createdAt: "desc" }],
+      take: limit,
+      include: {
+        company: {
+          select: {
+            name: true,
+          },
+        },
+        user: {
+          select: {
+            handle: true,
+          },
+        },
+      },
+    });
+
+    return reviews;
+  } catch (error) {
+    console.error("Error fetching recent public reviews:", error);
+    throw error;
   }
 }
