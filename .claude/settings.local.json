@@ -13,7 +13,10 @@
       "Bash(npx tsc *)",
       "Bash(npx next *)",
       "Bash(npx eslint *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(node -e \"const {z} = require\\('./node_modules/zod'\\); const s = z.object\\({x: z.string\\(\\)}\\); const r = s.safeParse\\({}\\); console.log\\(Object.keys\\(r.error\\)\\)\")",
+      "Bash(node *)",
+      "Bash(npx prisma *)"
     ]
   }
 }

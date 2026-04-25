@@ -4,10 +4,12 @@ import { useCallback, useState, useTransition } from "react";
 import Link from "next/link";
 
 import ReviewCard from "@/components/ReviewCard";
+import { useToast } from "@/components/ui/ToastProvider";
 
 type SortBy = "recent" | "rating-high" | "rating-low";
 
 interface FormattedReview {
+  reviewId: string;
   rating: number;
   position: string;
   seniority: string;
@@ -44,6 +46,7 @@ function formatReviewsFromApi(
   raw: any[]
 ): FormattedReview[] {
   return raw.map((review) => ({
+    reviewId: review.id,
     rating: review.ratingOverall,
     position: review.roleArea,
     seniority: seniorityMap[review.seniority] ?? review.seniority,
@@ -62,10 +65,14 @@ export default function CompanyReviewsSection({
   totalReviews,
   initialReviews,
 }: CompanyReviewsSectionProps) {
+  const { showToast } = useToast();
   const [sortBy, setSortBy] = useState<SortBy>("recent");
   const [reviews, setReviews] = useState<FormattedReview[]>(initialReviews);
   const [count, setCount] = useState(totalReviews);
   const [isPending, startTransition] = useTransition();
+  const [reportingReviewId, setReportingReviewId] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState("");
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
 
   const fetchReviews = useCallback(
     async (newSortBy: SortBy) => {
@@ -98,6 +105,48 @@ export default function CompanyReviewsSection({
     });
   }
 
+  function openReportForm(reviewId: string) {
+    setReportingReviewId(reviewId);
+    setReportReason("");
+  }
+
+  function cancelReport() {
+    setReportingReviewId(null);
+    setReportReason("");
+  }
+
+  async function submitReport(reviewId: string) {
+    if (reportReason.length < 10) {
+      showToast("O motivo deve ter pelo menos 10 caracteres.", "error");
+      return;
+    }
+
+    setIsSubmittingReport(true);
+    try {
+      const res = await fetch("/api/reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviewId, reason: reportReason }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showToast("Denúncia enviada. Obrigado pela contribuição!", "success");
+        setReportingReviewId(null);
+        setReportReason("");
+      } else if (res.status === 401) {
+        showToast("Você precisa estar logado para denunciar.", "warning");
+      } else {
+        showToast(data.error || "Erro ao enviar denúncia.", "error");
+      }
+    } catch {
+      showToast("Erro ao enviar denúncia.", "error");
+    } finally {
+      setIsSubmittingReport(false);
+    }
+  }
+
   return (
     <div className="lg:col-span-2">
       <div className="flex items-center justify-between mb-6">
@@ -122,7 +171,58 @@ export default function CompanyReviewsSection({
           className={`space-y-6 transition-opacity duration-200 ${isPending ? "opacity-50" : "opacity-100"}`}
         >
           {reviews.map((review, index) => (
-            <ReviewCard key={index} {...review} />
+            <div key={index}>
+              <ReviewCard {...review} />
+
+              {reportingReviewId === review.reviewId ? (
+                <div className="mt-2 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4">
+                  <p className="mb-2 text-sm font-semibold text-[var(--text-primary)]">
+                    Motivo da denúncia
+                  </p>
+                  <textarea
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    minLength={10}
+                    maxLength={500}
+                    rows={3}
+                    placeholder="Descreva o motivo (mín. 10, máx. 500 caracteres)"
+                    className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--bg-base)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20"
+                  />
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={() => submitReport(review.reviewId)}
+                      disabled={isSubmittingReport || reportReason.length < 10}
+                      className="rounded-lg bg-[var(--brand-primary)] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isSubmittingReport ? "Enviando..." : "Enviar denúncia"}
+                    </button>
+                    <button
+                      onClick={cancelReport}
+                      disabled={isSubmittingReport}
+                      className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text-secondary)] transition-all hover:bg-[var(--bg-subtle)] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-1 flex justify-end">
+                  <button
+                    onClick={() => openReportForm(review.reviewId)}
+                    className="flex items-center gap-1 text-xs text-[var(--text-muted)] transition-colors hover:text-[#EF4444]"
+                  >
+                    <span
+                      className="material-symbols-outlined text-base leading-none"
+                      translate="no"
+                      aria-hidden="true"
+                    >
+                      flag
+                    </span>
+                    Denunciar
+                  </button>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       ) : (

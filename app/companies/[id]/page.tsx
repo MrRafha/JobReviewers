@@ -108,6 +108,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
   }
 
   const formattedReviews = reviews.map((review) => ({
+    reviewId: review.id,
     rating: review.ratingOverall,
     position: review.roleArea,
     seniority: seniorityMap[review.seniority] || review.seniority,

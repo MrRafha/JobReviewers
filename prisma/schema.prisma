@@ -12,6 +12,14 @@ enum Role {
   ADMIN
 }
 
+enum ReportStatus {
+  PENDING
+  CLAIMED
+  RESOLVED
+  DISMISSED
+  APPROVED
+}
+
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
@@ -24,10 +32,13 @@ model User {
   role          Role      @default(USER)
   createdAt     DateTime  @default(now())
 
-  reviews       Review[]
-  reports       Report[]  @relation("ReportByUser")
-  accounts      Account[]
-  sessions      Session[]
+  reviews        Review[]
+  reports        Report[]    @relation("ReportByUser")
+  claimedReports Report[]    @relation("ReportClaims")
+  accounts       Account[]
+  sessions       Session[]
+  adminLogs      AdminLog[]  @relation("AdminActions")
+  adminNotes     AdminNote[] @relation("AdminNotes")
 }
 
 model Account {
@@ -119,13 +130,49 @@ model Review {
 }
 
 model Report {
-  id             String   @id @default(uuid())
-  reviewId       String
-  reporterUserId String
-  reason         String
-  createdAt      DateTime @default(now())
-  resolvedAt     DateTime?
+  id               String       @id @default(uuid())
+  reviewId         String
+  reporterUserId   String
+  reason           String
+  status           ReportStatus @default(PENDING)
+  claimedByAdminId String?
+  claimedAt        DateTime?
+  resolvedAt       DateTime?
+  createdAt        DateTime     @default(now())
 
-  review         Review   @relation(fields: [reviewId], references: [id])
-  reporter       User     @relation("ReportByUser", fields: [reporterUserId], references: [id])
+  review           Review       @relation(fields: [reviewId], references: [id])
+  reporter         User         @relation("ReportByUser", fields: [reporterUserId], references: [id])
+  claimedBy        User?        @relation("ReportClaims", fields: [claimedByAdminId], references: [id])
+
+  @@index([status])
+  @@index([claimedByAdminId])
+}
+
+model AdminNote {
+  id        String   @id @default(uuid())
+  content   String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author    User     @relation("AdminNotes", fields: [authorId], references: [id])
+
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+model AdminLog {
+  id         String   @id @default(uuid())
+  adminId    String
+  action     String
+  targetType String
+  targetId   String
+  meta       String?
+  createdAt  DateTime @default(now())
+
+  admin      User     @relation("AdminActions", fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
 }
