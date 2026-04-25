@@ -6,6 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+
 interface ForgotPasswordFormProps {
   success?: boolean;
 }
@@ -100,7 +103,7 @@ export default function ForgotPasswordForm({
             Digite o email associado à sua conta
           </p>
 
-          {/* Success Message */}
+          {/* Success State */}
           {success ? (
             <div className="space-y-4">
               <div className="rounded-lg bg-[var(--brand-success-bg)] border border-[var(--brand-success)] p-4 text-center">
@@ -115,7 +118,7 @@ export default function ForgotPasswordForm({
               <div className="space-y-2">
                 <Link
                   href="/login"
-                  className="w-full inline-flex items-center justify-center h-11 bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white rounded-xi font-semibold transition-all rounded-xl"
+                  className="w-full inline-flex items-center justify-center h-11 bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white rounded-xl font-semibold transition-all"
                 >
                   Voltar ao Login
                 </Link>
@@ -132,29 +135,24 @@ export default function ForgotPasswordForm({
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Email Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
-                    placeholder="seu@email.com"
-                    required
-                  />
-                </div>
+                <Input
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="seu@email.com"
+                  required
+                />
 
-                {/* Submit Button */}
-                <button
+                <Button
                   type="submit"
-                  disabled={loading}
-                  className="w-full bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white py-3 rounded-xl font-semibold transition-all hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed active:scale-95"
+                  variant="primary"
+                  size="md"
+                  loading={loading}
+                  fullWidth
                 >
                   {loading ? "Enviando..." : "Enviar Link de Recuperação"}
-                </button>
+                </Button>
               </form>
 
               {/* Back to Login */}

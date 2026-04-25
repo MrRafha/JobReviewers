@@ -7,6 +7,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import Button from "@/components/ui/Button";
+
 export default function Navbar() {
   const { data: session } = useSession();
   const pathname = usePathname();
@@ -64,13 +66,14 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-2 lg:flex">
           {session?.user ? (
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="md"
               onClick={() => signOut({ callbackUrl: "/login" })}
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-[var(--text-primary)] transition hover:bg-[var(--bg-subtle)]"
             >
               Sair
-            </button>
+            </Button>
           ) : (
             <>
               <Link
@@ -119,16 +122,18 @@ export default function Navbar() {
             ))}
 
             {session?.user ? (
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="md"
+                className="mt-2"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   signOut({ callbackUrl: "/login" });
                 }}
-                className="mt-2 inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] text-sm font-semibold text-[var(--text-primary)]"
               >
                 Sair
-              </button>
+              </Button>
             ) : (
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <Link

@@ -2,6 +2,8 @@
 
 import React from "react";
 
+import Button from "@/components/ui/Button";
+
 interface ErrorCardProps {
   title?: string;
   description: string;
@@ -52,12 +54,15 @@ export default function ErrorCard({
 
       {/* Retry Button */}
       {onRetry && (
-        <button
+        <Button
+          type="button"
+          variant="primary"
+          size="md"
           onClick={onRetry}
-          className="inline-flex items-center justify-center h-11 px-6 rounded-xl bg-[var(--brand-primary)] text-white font-semibold transition hover:bg-[var(--brand-primary-hover)] active:scale-95"
+          className="px-6"
         >
           {retryLabel}
-        </button>
+        </Button>
       )}
     </div>
   );

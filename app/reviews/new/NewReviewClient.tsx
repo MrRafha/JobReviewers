@@ -6,7 +6,11 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import { Container, Footer, Navbar } from "@/components/layout";
+import Button from "@/components/ui/Button";
 import ErrorCard from "@/components/ui/ErrorCard";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
+import Textarea from "@/components/ui/Textarea";
 import { DB_UNAVAILABLE } from "@/lib/constants/error-messages";
 
 interface Company {
@@ -220,12 +224,15 @@ export default function NewReviewClient({
               description="Você precisa estar logado para criar uma avaliação."
             />
             <div className="mt-6 text-center">
-              <button
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
+                className="px-6"
                 onClick={() => router.push("/login")}
-                className="inline-flex bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white px-6 py-2 rounded-xl font-semibold transition-all"
               >
                 Fazer Login
-              </button>
+              </Button>
             </div>
           </Container>
         </main>
@@ -279,6 +286,7 @@ export default function NewReviewClient({
             onSubmit={handleSubmit}
             className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl p-8 shadow-sm space-y-6"
           >
+            {/* Company search with dropdown */}
             <div ref={dropdownRef} className="relative">
               <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                 Empresa *
@@ -333,79 +341,56 @@ export default function NewReviewClient({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  Cargo/Area *
-                </label>
-                <input
-                  type="text"
-                  value={roleArea}
-                  onChange={(e) => setRoleArea(e.target.value)}
-                  placeholder="Frontend Developer"
-                  className="w-full border border-[var(--border)] rounded-xl px-4 py-3 bg-[var(--bg-base)] text-[var(--text-primary)]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  Senioridade
-                </label>
-                <select
-                  value={seniority}
-                  onChange={(e) => setSeniority(e.target.value)}
-                  className="w-full border border-[var(--border)] rounded-xl px-4 py-3 bg-[var(--bg-base)] text-[var(--text-primary)]"
-                >
-                  <option value="JR">Junior</option>
-                  <option value="PL">Pleno</option>
-                  <option value="SR">Senior</option>
-                </select>
-              </div>
+              <Input
+                label="Cargo/Area *"
+                type="text"
+                value={roleArea}
+                onChange={(e) => setRoleArea(e.target.value)}
+                placeholder="Frontend Developer"
+              />
+
+              <Select
+                label="Senioridade"
+                value={seniority}
+                onChange={(e) => setSeniority(e.target.value)}
+              >
+                <option value="JR">Junior</option>
+                <option value="PL">Pleno</option>
+                <option value="SR">Senior</option>
+              </Select>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  Tipo de Contrato
-                </label>
-                <select
-                  value={contractType}
-                  onChange={(e) => setContractType(e.target.value)}
-                  className="w-full border border-[var(--border)] rounded-xl px-4 py-3 bg-[var(--bg-base)] text-[var(--text-primary)]"
-                >
-                  <option value="CLT">CLT</option>
-                  <option value="PJ">PJ</option>
-                  <option value="ESTAGIO">Estagio</option>
-                  <option value="FREELA">Freelancer</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                  Modo de Trabalho
-                </label>
-                <select
-                  value={workMode}
-                  onChange={(e) => setWorkMode(e.target.value)}
-                  className="w-full border border-[var(--border)] rounded-xl px-4 py-3 bg-[var(--bg-base)] text-[var(--text-primary)]"
-                >
-                  <option value="REMOTO">Remoto</option>
-                  <option value="HIBRIDO">Hibrido</option>
-                  <option value="PRESENCIAL">Presencial</option>
-                </select>
-              </div>
+              <Select
+                label="Tipo de Contrato"
+                value={contractType}
+                onChange={(e) => setContractType(e.target.value)}
+              >
+                <option value="CLT">CLT</option>
+                <option value="PJ">PJ</option>
+                <option value="ESTAGIO">Estagio</option>
+                <option value="FREELA">Freelancer</option>
+              </Select>
+
+              <Select
+                label="Modo de Trabalho"
+                value={workMode}
+                onChange={(e) => setWorkMode(e.target.value)}
+              >
+                <option value="REMOTO">Remoto</option>
+                <option value="HIBRIDO">Hibrido</option>
+                <option value="PRESENCIAL">Presencial</option>
+              </Select>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Ano de experiencia
-              </label>
-              <input
-                type="number"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                min="2000"
-                max={new Date().getFullYear()}
-                className="w-full border border-[var(--border)] rounded-xl px-4 py-3 bg-[var(--bg-base)] text-[var(--text-primary)]"
-              />
-            </div>
+            <Input
+              label="Ano de experiencia"
+              type="number"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              min="2000"
+              max={new Date().getFullYear()}
+            />
 
             <div>
               <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
@@ -414,39 +399,31 @@ export default function NewReviewClient({
               <StarRating value={ratingOverall} onChange={setRatingOverall} />
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Pontos Positivos *
-              </label>
-              <textarea
-                rows={4}
-                value={pros}
-                onChange={(e) => setPros(e.target.value)}
-                placeholder="O que voce gostou..."
-                className="w-full border border-[var(--border)] rounded-xl px-4 py-3 bg-[var(--bg-base)] text-[var(--text-primary)]"
-              />
-            </div>
+            <Textarea
+              label="Pontos Positivos *"
+              value={pros}
+              onChange={(e) => setPros(e.target.value)}
+              placeholder="O que voce gostou..."
+              rows={4}
+            />
 
-            <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Pontos Negativos *
-              </label>
-              <textarea
-                rows={4}
-                value={cons}
-                onChange={(e) => setCons(e.target.value)}
-                placeholder="O que precisa melhorar..."
-                className="w-full border border-[var(--border)] rounded-xl px-4 py-3 bg-[var(--bg-base)] text-[var(--text-primary)]"
-              />
-            </div>
+            <Textarea
+              label="Pontos Negativos *"
+              value={cons}
+              onChange={(e) => setCons(e.target.value)}
+              placeholder="O que precisa melhorar..."
+              rows={4}
+            />
 
-            <button
+            <Button
               type="submit"
-              disabled={submitting}
-              className="w-full bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white py-4 rounded-xl font-semibold text-lg transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="primary"
+              size="lg"
+              loading={submitting}
+              fullWidth
             >
               {submitting ? "Publicando..." : "Publicar Review"}
-            </button>
+            </Button>
           </form>
         </Container>
       </main>

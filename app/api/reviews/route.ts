@@ -6,12 +6,107 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isDatabaseUnavailableError } from "@/lib/services/db-errors";
 import { findOrCreateCompanyByName } from "@/lib/services/companies";
-import { createReview, getRecentPublicReviews } from "@/lib/services/reviews";
+import {
+  createReview,
+  getRecentPublicReviews,
+  getReviewsByCompany,
+} from "@/lib/services/reviews";
 import { DB_UNAVAILABLE } from "@/lib/constants/error-messages";
+
+const VALID_SENIORITIES = ["JR", "PL", "SR"] as const;
+const VALID_CONTRACT_TYPES = ["CLT", "PJ", "ESTAGIO", "FREELA"] as const;
+const VALID_WORK_MODES = ["REMOTO", "HIBRIDO", "PRESENCIAL"] as const;
+const VALID_SORT_BY = ["recent", "rating-high", "rating-low"] as const;
+
+type ValidSortBy = (typeof VALID_SORT_BY)[number];
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
+
+    const companySlug = searchParams.get("company");
+
+    // --- Filtered mode (by company slug) ---
+    if (companySlug) {
+      // Resolve company
+      const company = await prisma.company.findUnique({
+        where: { slug: companySlug },
+        select: { id: true },
+      });
+
+      if (!company) {
+        return NextResponse.json(
+          { error: "Empresa não encontrada" },
+          { status: 404 }
+        );
+      }
+
+      // Parse & validate pagination
+      const pageParam = searchParams.get("page");
+      const limitParam = searchParams.get("limit");
+
+      const parsedPage = pageParam ? parseInt(pageParam, 10) : 1;
+      const parsedLimit = limitParam ? parseInt(limitParam, 10) : 10;
+
+      const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+      const limit =
+        Number.isFinite(parsedLimit) && parsedLimit > 0
+          ? Math.min(parsedLimit, 50)
+          : 10;
+
+      // Parse & validate sortBy
+      const sortByParam = searchParams.get("sortBy") ?? "recent";
+      const sortBy: ValidSortBy = (VALID_SORT_BY as readonly string[]).includes(
+        sortByParam
+      )
+        ? (sortByParam as ValidSortBy)
+        : "recent";
+
+      // Parse & validate enum filters
+      const seniorityParam = searchParams.get("seniority")?.toUpperCase();
+      const contractTypeParam = searchParams.get("contractType")?.toUpperCase();
+      const workModeParam = searchParams.get("workMode")?.toUpperCase();
+
+      const seniority =
+        seniorityParam &&
+        (VALID_SENIORITIES as readonly string[]).includes(seniorityParam)
+          ? (seniorityParam as Seniority)
+          : undefined;
+
+      const contractType =
+        contractTypeParam &&
+        (VALID_CONTRACT_TYPES as readonly string[]).includes(contractTypeParam)
+          ? (contractTypeParam as ContractType)
+          : undefined;
+
+      const workMode =
+        workModeParam &&
+        (VALID_WORK_MODES as readonly string[]).includes(workModeParam)
+          ? (workModeParam as WorkMode)
+          : undefined;
+
+      // Parse & validate year
+      const yearParam = searchParams.get("year");
+      const parsedYear = yearParam ? parseInt(yearParam, 10) : undefined;
+      const year =
+        parsedYear !== undefined && Number.isFinite(parsedYear)
+          ? parsedYear
+          : undefined;
+
+      const result = await getReviewsByCompany(company.id, {
+        page,
+        limit,
+        sortBy,
+        seniority,
+        contractType,
+        workMode,
+        year,
+      });
+
+      return NextResponse.json(result);
+    }
+
+    // --- Recent public reviews mode (no company filter) ---
     const limitParam = searchParams.get("limit");
     const parsedLimit = limitParam ? parseInt(limitParam, 10) : 3;
     const limit = Number.isFinite(parsedLimit)

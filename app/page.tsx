@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import CompanyCard from "@/components/CompanyCard";
+import CompanyCardSkeleton from "@/components/CompanyCardSkeleton";
 import { Container, Footer, Navbar } from "@/components/layout";
 import ErrorCard from "@/components/ui/ErrorCard";
 import {
@@ -182,11 +183,10 @@ export default function Home() {
             </div>
 
             {loadingCompanies ? (
-              <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] py-14 text-center shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
-                <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-[#bfdbfe] border-b-[var(--brand-primary)]" />
-                <p className="mt-4 text-[var(--text-secondary)]">
-                  Carregando empresas...
-                </p>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <CompanyCardSkeleton key={i} />
+                ))}
               </div>
             ) : companiesUnavailable ? (
               <ErrorCard
