@@ -7,6 +7,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { useToast } from "@/components/ui/ToastProvider";
+
 interface LoginFormProps {
   callbackUrl?: string;
   registered?: string;
@@ -18,6 +22,7 @@ export default function LoginForm({ callbackUrl, registered }: LoginFormProps) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast();
 
   const resolvedCallbackUrl = callbackUrl || "/";
 
@@ -34,14 +39,14 @@ export default function LoginForm({ callbackUrl, registered }: LoginFormProps) {
       });
 
       if (result?.error) {
-        setError("Email ou senha inválidos");
+        showToast("Email ou senha inválidos", "error");
         return;
       }
 
       router.push(resolvedCallbackUrl);
       router.refresh();
     } catch {
-      setError("Erro de conexão. Tente novamente.");
+      showToast("Erro de conexão. Tente novamente.", "error");
     } finally {
       setLoading(false);
     }
@@ -113,35 +118,23 @@ export default function LoginForm({ callbackUrl, registered }: LoginFormProps) {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Input */}
-            <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
-                placeholder="seu@email.com"
-                required
-              />
-            </div>
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              required
+            />
 
-            {/* Password Input */}
-            <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Senha
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
-                placeholder="••••••••"
-                required
-              />
-            </div>
+            <Input
+              label="Senha"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
 
             {/* Remember & Forgot Password */}
             <div className="flex items-center justify-between text-sm">
@@ -160,14 +153,15 @@ export default function LoginForm({ callbackUrl, registered }: LoginFormProps) {
               </Link>
             </div>
 
-            {/* Submit Button */}
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="w-full bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white py-3 rounded-xl font-semibold transition-all hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed active:scale-95"
+              variant="primary"
+              size="md"
+              loading={loading}
+              fullWidth
             >
               {loading ? "Entrando..." : "Entrar"}
-            </button>
+            </Button>
           </form>
 
           {/* Sign Up Link */}

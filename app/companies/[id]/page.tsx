@@ -2,9 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import ReviewCard from "@/components/ReviewCard";
 import { Container, Footer, Navbar } from "@/components/layout";
 import ErrorCard from "@/components/ui/ErrorCard";
+import CompanyReviewsSection from "@/components/features/CompanyReviewsSection";
 import { DB_UNAVAILABLE } from "@/lib/constants/error-messages";
 import {
   getCompanyById,
@@ -108,6 +108,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
   }
 
   const formattedReviews = reviews.map((review) => ({
+    reviewId: review.id,
     rating: review.ratingOverall,
     position: review.roleArea,
     seniority: seniorityMap[review.seniority] || review.seniority,
@@ -247,56 +248,13 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
               </div>
             </div>
 
-            <div className="lg:col-span-2">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-sora text-2xl font-bold text-[var(--text-primary)]">
-                  Avaliações ({stats.totalReviews})
-                </h2>
-
-                <select className="border border-[var(--border)] rounded-xl px-4 py-2 text-sm text-[var(--text-secondary)] bg-[var(--bg-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all">
-                  <option value="recent">Mais Recentes</option>
-                  <option value="helpful">Mais Úteis</option>
-                  <option value="rating-high">Maior Avaliação</option>
-                  <option value="rating-low">Menor Avaliação</option>
-                </select>
-              </div>
-
-              {formattedReviews.length > 0 ? (
-                <div className="space-y-6">
-                  {formattedReviews.map((review, index) => (
-                    <ReviewCard key={index} {...review} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl">
-                  <svg
-                    className="w-16 h-16 mx-auto text-[var(--text-muted)] mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
-                    />
-                  </svg>
-                  <p className="text-[var(--text-secondary)] font-semibold mb-2">
-                    Ainda não há avaliações
-                  </p>
-                  <p className="text-[var(--text-muted)] text-sm mb-4">
-                    Seja o primeiro a avaliar {company.name}
-                  </p>
-                  <Link
-                    href={`/reviews/new?companyId=${companyId}&companyName=${encodeURIComponent(company.name)}`}
-                    className="inline-block bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white px-6 py-2 rounded-full font-semibold transition-all"
-                  >
-                    Escrever Primeira Review
-                  </Link>
-                </div>
-              )}
-            </div>
+            <CompanyReviewsSection
+              companySlug={company.slug}
+              companyName={company.name}
+              companyId={companyId}
+              totalReviews={stats.totalReviews}
+              initialReviews={formattedReviews}
+            />
           </div>
         </Container>
       </main>

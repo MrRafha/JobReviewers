@@ -1,4 +1,4 @@
-import { ContractType, Seniority, WorkMode } from "@prisma/client";
+import { ContractType, Prisma, Seniority, WorkMode } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { isDatabaseUnavailableError } from "@/lib/services/db-errors";
@@ -14,6 +14,16 @@ export interface CreateReviewData {
   ratingOverall: number;
   pros: string;
   cons: string;
+}
+
+export interface GetReviewsByCompanyOptions {
+  page?: number;
+  limit?: number;
+  sortBy?: "recent" | "helpful" | "rating-high" | "rating-low";
+  seniority?: Seniority;
+  contractType?: ContractType;
+  workMode?: WorkMode;
+  year?: number;
 }
 
 export async function createReview(data: CreateReviewData) {
@@ -39,11 +49,7 @@ export async function createReview(data: CreateReviewData) {
 
 export async function getReviewsByCompany(
   companyId: string,
-  options?: {
-    page?: number;
-    limit?: number;
-    sortBy?: "recent" | "helpful" | "rating-high" | "rating-low";
-  }
+  options?: GetReviewsByCompanyOptions
 ) {
   const page = options?.page || 1;
   const limit = options?.limit || 10;
@@ -58,13 +64,28 @@ export async function getReviewsByCompany(
     orderBy = { ratingOverall: "asc" };
   }
 
+  const where: Prisma.ReviewWhereInput = {
+    companyId,
+    hidden: false,
+  };
+
+  if (options?.seniority) {
+    where.seniority = options.seniority;
+  }
+  if (options?.contractType) {
+    where.contractType = options.contractType;
+  }
+  if (options?.workMode) {
+    where.workMode = options.workMode;
+  }
+  if (options?.year !== undefined) {
+    where.year = options.year;
+  }
+
   try {
     const [reviews, totalCount] = await Promise.all([
       prisma.review.findMany({
-        where: {
-          companyId,
-          hidden: false,
-        },
+        where,
         orderBy,
         skip,
         take: limit,
@@ -76,12 +97,7 @@ export async function getReviewsByCompany(
           },
         },
       }),
-      prisma.review.count({
-        where: {
-          companyId,
-          hidden: false,
-        },
-      }),
+      prisma.review.count({ where }),
     ]);
 
     return {

@@ -162,11 +162,13 @@ export async function getAllCompanies(limit?: number) {
       include: {
         reviews: {
           where: { hidden: false },
+          select: { ratingOverall: true, createdAt: true },
         },
       },
     });
 
-    // Calcular rating médio para cada empresa
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
     const companiesWithRating = companies.map((company) => {
       const totalRating = company.reviews.reduce(
         (sum, review) => sum + review.ratingOverall,
@@ -174,6 +176,20 @@ export async function getAllCompanies(limit?: number) {
       );
       const averageRating =
         company.reviews.length > 0 ? totalRating / company.reviews.length : 0;
+
+      const ratingDistribution =
+        company.reviews.length > 0
+          ? [5, 4, 3, 2, 1].map((stars) => {
+              const count = company.reviews.filter(
+                (r) => r.ratingOverall === stars
+              ).length;
+              return Math.round((count / company.reviews.length) * 100);
+            })
+          : [0, 0, 0, 0, 0];
+
+      const recentlyActive = company.reviews.some(
+        (r) => new Date(r.createdAt) > thirtyDaysAgo
+      );
 
       return {
         id: company.id,
@@ -185,10 +201,11 @@ export async function getAllCompanies(limit?: number) {
             : "Localização não informada",
         rating: Number(averageRating.toFixed(1)),
         reviewCount: company.reviews.length,
+        ratingDistribution,
+        recentlyActive,
       };
     });
 
-    // Ordenar por avaliação (melhor primeiro), e em caso de empate, por número de reviews
     return companiesWithRating.sort((a, b) => {
       if (b.rating !== a.rating) {
         return b.rating - a.rating;
@@ -214,10 +231,13 @@ export async function searchCompanies(query: string) {
       include: {
         reviews: {
           where: { hidden: false },
+          select: { ratingOverall: true, createdAt: true },
         },
       },
       take: 20,
     });
+
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const companiesWithRating = companies.map((company) => {
       const totalRating = company.reviews.reduce(
@@ -226,6 +246,20 @@ export async function searchCompanies(query: string) {
       );
       const averageRating =
         company.reviews.length > 0 ? totalRating / company.reviews.length : 0;
+
+      const ratingDistribution =
+        company.reviews.length > 0
+          ? [5, 4, 3, 2, 1].map((stars) => {
+              const count = company.reviews.filter(
+                (r) => r.ratingOverall === stars
+              ).length;
+              return Math.round((count / company.reviews.length) * 100);
+            })
+          : [0, 0, 0, 0, 0];
+
+      const recentlyActive = company.reviews.some(
+        (r) => new Date(r.createdAt) > thirtyDaysAgo
+      );
 
       return {
         id: company.id,
@@ -237,6 +271,8 @@ export async function searchCompanies(query: string) {
             : "Localização não informada",
         rating: Number(averageRating.toFixed(1)),
         reviewCount: company.reviews.length,
+        ratingDistribution,
+        recentlyActive,
       };
     });
 

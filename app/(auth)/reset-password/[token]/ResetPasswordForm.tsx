@@ -6,6 +6,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { useToast } from "@/components/ui/ToastProvider";
+
 interface ResetPasswordFormProps {
   token: string;
 }
@@ -17,6 +21,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,20 +55,20 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Erro ao redefinir senha");
+        showToast(data.error || "Erro ao redefinir senha", "error");
         return;
       }
 
+      showToast("Senha redefinida com sucesso! Redirecionando...", "success");
       setSuccess(true);
       setPassword("");
       setConfirmPassword("");
 
-      // Redirect to login after 3 seconds
       setTimeout(() => {
         router.push("/login");
       }, 3000);
     } catch {
-      setError("Erro de conexão. Tente novamente.");
+      showToast("Erro de conexão. Tente novamente.", "error");
     } finally {
       setLoading(false);
     }
@@ -120,7 +125,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
             Digite uma nova senha segura
           </p>
 
-          {/* Success Message */}
+          {/* Success State */}
           {success ? (
             <div className="space-y-4">
               <div className="rounded-lg bg-[var(--brand-success-bg)] border border-[var(--brand-success)] p-4 text-center">
@@ -152,47 +157,34 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Password Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                    Nova Senha
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
-                    placeholder="••••••••"
-                    required
-                  />
-                  <p className="text-xs text-[var(--text-muted)] mt-1">
-                    Mínimo 8 caracteres
-                  </p>
-                </div>
+                <Input
+                  label="Nova Senha"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  hint="Mínimo 8 caracteres"
+                  required
+                />
 
-                {/* Confirm Password Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                    Confirmar Senha
-                  </label>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
+                <Input
+                  label="Confirmar Senha"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
 
-                {/* Submit Button */}
-                <button
+                <Button
                   type="submit"
-                  disabled={loading}
-                  className="w-full bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white py-3 rounded-xl font-semibold transition-all hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed active:scale-95"
+                  variant="primary"
+                  size="md"
+                  loading={loading}
+                  fullWidth
                 >
                   {loading ? "Redefinindo..." : "Redefinir Senha"}
-                </button>
+                </Button>
               </form>
 
               {/* Back to Login */}

@@ -46,7 +46,17 @@ export default auth((req) => {
     );
   }
 
-  // Verifica se é admin para rotas admin
+  // Proteção de rotas /api/admin/*
+  if (pathname.startsWith("/api/admin")) {
+    if (!isLoggedIn) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+    if (req.auth?.user?.role !== "ADMIN") {
+      return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
+    }
+  }
+
+  // Verifica se é admin para rotas de página admin
   if (isAdminRoute && req.auth?.user?.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/", req.url));
   }

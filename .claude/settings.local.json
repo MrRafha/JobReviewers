@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo *)",
+      "Bash(gh issue *)",
+      "Read(//usr/local/bin/**)",
+      "Read(//usr/bin/**)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(xargs grep *)",
+      "Bash(xargs ls *)",
+      "Bash(curl *)",
+      "Read(//c/Users/Rafhael/Desktop/agency-agents/**)",
+      "Bash(npx tsc *)",
+      "Bash(npx next *)",
+      "Bash(npx eslint *)",
+      "Bash(npm install *)",
+      "Bash(node -e \"const {z} = require\\('./node_modules/zod'\\); const s = z.object\\({x: z.string\\(\\)}\\); const r = s.safeParse\\({}\\); console.log\\(Object.keys\\(r.error\\)\\)\")",
+      "Bash(node *)",
+      "Bash(npx prisma *)"
+    ]
+  }
+}

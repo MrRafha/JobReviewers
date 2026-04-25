@@ -1,10 +1,14 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -14,6 +18,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast();
 
   const calculateAge = (date: string): number => {
     const today = new Date();
@@ -72,13 +77,13 @@ export default function RegisterPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Erro ao criar conta");
+        showToast(data.error || "Erro ao criar conta", "error");
         return;
       }
 
       router.push("/login?registered=true");
     } catch {
-      setError("Erro de conexão. Tente novamente.");
+      showToast("Erro de conexão. Tente novamente.", "error");
     } finally {
       setLoading(false);
     }
@@ -143,82 +148,55 @@ export default function RegisterPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email Input */}
-            <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
-                placeholder="seu@email.com"
-                required
-              />
-            </div>
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              required
+            />
 
-            {/* Birthdate Input */}
-            <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Data de Nascimento
-              </label>
-              <input
-                type="date"
-                value={birthdate}
-                onChange={(e) => setBirthdate(e.target.value)}
-                className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
-                max={new Date().toISOString().split("T")[0]}
-                required
-              />
-              <p className="text-xs text-[var(--text-muted)] mt-1">
-                Você deve ter pelo menos 18 anos
-              </p>
-            </div>
+            <Input
+              label="Data de Nascimento"
+              type="date"
+              value={birthdate}
+              onChange={(e) => setBirthdate(e.target.value)}
+              max={new Date().toISOString().split("T")[0]}
+              hint="Você deve ter pelo menos 18 anos"
+              required
+            />
 
-            {/* Password Input */}
-            <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Senha
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
-                placeholder="••••••••"
-                minLength={8}
-                required
-              />
-              <p className="text-xs text-[var(--text-muted)] mt-1">
-                Mínimo de 8 caracteres
-              </p>
-            </div>
+            <Input
+              label="Senha"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              minLength={8}
+              hint="Mínimo de 8 caracteres"
+              required
+            />
 
-            {/* Confirm Password Input */}
-            <div>
-              <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                Confirmar Senha
-              </label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all bg-[var(--bg-base)]"
-                placeholder="••••••••"
-                minLength={8}
-                required
-              />
-            </div>
+            <Input
+              label="Confirmar Senha"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+              minLength={8}
+              required
+            />
 
-            {/* Submit Button */}
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="w-full bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] text-white py-3 rounded-xl font-semibold transition-all hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed active:scale-95"
+              variant="primary"
+              size="md"
+              loading={loading}
+              fullWidth
             >
               {loading ? "Criando conta..." : "Criar Conta"}
-            </button>
+            </Button>
           </form>
 
           {/* Login Link */}
@@ -242,4 +220,4 @@ export default function RegisterPage() {
       </div>
     </div>
   );
-  }
+}

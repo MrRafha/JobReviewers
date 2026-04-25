@@ -46,10 +46,63 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-inter), sans-serif;
+}
+
+.section-tint {
+  background: color-mix(in srgb, var(--brand-primary) 4%, white);
+}
+
+.nav-link-animated {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 2px;
+}
+.nav-link-animated::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--brand-primary);
+  transition: width 200ms ease, left 200ms ease;
+}
+.nav-link-animated:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+@keyframes scroll-up {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+.review-ticker {
+  animation: scroll-up 30s linear infinite;
+}
+.review-ticker-wrapper:hover .review-ticker {
+  animation-play-state: paused;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.company-card-enter {
+  animation: fadeInUp 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .material-symbols-rounded {
