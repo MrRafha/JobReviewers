@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface LoginFormProps {
   callbackUrl?: string;
@@ -21,6 +22,7 @@ export default function LoginForm({ callbackUrl, registered }: LoginFormProps) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast();
 
   const resolvedCallbackUrl = callbackUrl || "/";
 
@@ -37,14 +39,14 @@ export default function LoginForm({ callbackUrl, registered }: LoginFormProps) {
       });
 
       if (result?.error) {
-        setError("Email ou senha inválidos");
+        showToast("Email ou senha inválidos", "error");
         return;
       }
 
       router.push(resolvedCallbackUrl);
       router.refresh();
     } catch {
-      setError("Erro de conexão. Tente novamente.");
+      showToast("Erro de conexão. Tente novamente.", "error");
     } finally {
       setLoading(false);
     }

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import Button from "@/components/ui/Button";
+import { useToast } from "@/components/ui/ToastProvider";
 
 function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
   const hash = href.includes("#") ? href.split("#")[1] : null;
@@ -30,6 +31,12 @@ export default function Navbar() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { showToast } = useToast();
+
+  const handleSignOut = () => {
+    showToast("Até logo! Volte sempre.", "success");
+    setTimeout(() => signOut({ callbackUrl: "/login" }), 800);
+  };
 
   if (pathname === "/login" || pathname === "/register") {
     return null;
@@ -91,7 +98,7 @@ export default function Navbar() {
               type="button"
               variant="secondary"
               size="md"
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={handleSignOut}
             >
               Sair
             </Button>
@@ -153,7 +160,7 @@ export default function Navbar() {
                 className="mt-2"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  signOut({ callbackUrl: "/login" });
+                  handleSignOut();
                 }}
               >
                 Sair

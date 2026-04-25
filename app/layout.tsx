@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
 
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 import "./globals.css";
 
@@ -37,7 +38,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-inter antialiased">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </AuthProvider>
       </body>
     </html>
   );

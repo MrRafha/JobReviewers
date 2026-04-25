@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -17,6 +18,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast();
 
   const calculateAge = (date: string): number => {
     const today = new Date();
@@ -75,13 +77,13 @@ export default function RegisterPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Erro ao criar conta");
+        showToast(data.error || "Erro ao criar conta", "error");
         return;
       }
 
       router.push("/login?registered=true");
     } catch {
-      setError("Erro de conexão. Tente novamente.");
+      showToast("Erro de conexão. Tente novamente.", "error");
     } finally {
       setLoading(false);
     }

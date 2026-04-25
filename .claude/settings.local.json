@@ -12,7 +12,8 @@
       "Read(//c/Users/Rafhael/Desktop/agency-agents/**)",
       "Bash(npx tsc *)",
       "Bash(npx next *)",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(npm install *)"
     ]
   }
 }

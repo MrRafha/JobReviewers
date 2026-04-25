@@ -12,6 +12,7 @@ import {
   getReviewsByCompany,
 } from "@/lib/services/reviews";
 import { DB_UNAVAILABLE } from "@/lib/constants/error-messages";
+import { createReviewSchema } from "@/lib/validations/review";
 
 const VALID_SENIORITIES = ["JR", "PL", "SR"] as const;
 const VALID_CONTRACT_TYPES = ["CLT", "PJ", "ESTAGIO", "FREELA"] as const;
@@ -153,6 +154,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    const parsed = createReviewSchema.safeParse(body);
+    if (!parsed.success) {
+      const message = parsed.error.errors[0]?.message ?? "Dados inválidos";
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
     const {
       companyId,
       companyName,
@@ -164,38 +170,9 @@ export async function POST(request: NextRequest) {
       ratingOverall,
       pros,
       cons,
-    } = body;
+    } = parsed.data;
 
-    // Validações básicas
-    if (
-      !roleArea ||
-      !seniority ||
-      !contractType ||
-      !workMode ||
-      !ratingOverall ||
-      !pros ||
-      !cons
-    ) {
-      return NextResponse.json(
-        { error: "Todos os campos obrigatórios devem ser preenchidos" },
-        { status: 400 }
-      );
-    }
-
-    if (!companyId && !String(companyName || "").trim()) {
-      return NextResponse.json(
-        { error: "Informe uma empresa para publicar a review" },
-        { status: 400 }
-      );
-    }
-
-    const numericRating = Number(ratingOverall);
-    if (Number.isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
-      return NextResponse.json(
-        { error: "A avaliação deve ser entre 1 e 5" },
-        { status: 400 }
-      );
-    }
+    const numericRating = ratingOverall;
 
     let resolvedCompanyId: string;
 
@@ -221,10 +198,10 @@ export async function POST(request: NextRequest) {
       companyId: resolvedCompanyId,
       userId: session.user.id,
       roleArea,
-      seniority: String(seniority).toUpperCase() as Seniority,
-      contractType: String(contractType).toUpperCase() as ContractType,
-      workMode: String(workMode).toUpperCase() as WorkMode,
-      year: year ? parseInt(String(year), 10) : undefined,
+      seniority: seniority as Seniority,
+      contractType: contractType as ContractType,
+      workMode: workMode as WorkMode,
+      year,
       ratingOverall: numericRating,
       pros,
       cons,

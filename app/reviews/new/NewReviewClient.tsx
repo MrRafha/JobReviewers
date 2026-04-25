@@ -11,6 +11,7 @@ import ErrorCard from "@/components/ui/ErrorCard";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
+import { useToast } from "@/components/ui/ToastProvider";
 import { DB_UNAVAILABLE } from "@/lib/constants/error-messages";
 
 interface Company {
@@ -63,6 +64,7 @@ export default function NewReviewClient({
 }: NewReviewClientProps) {
   const router = useRouter();
   const { status } = useSession();
+  const { showToast } = useToast();
 
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companySearch, setCompanySearch] = useState(initialCompanyName ?? "");
@@ -184,7 +186,7 @@ export default function NewReviewClient({
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Erro ao publicar review.");
+        showToast(data.error || "Erro ao publicar review.", "error");
         setSubmitting(false);
         return;
       }
@@ -193,14 +195,18 @@ export default function NewReviewClient({
       const companyIdentifier = review.company?.slug ?? selectedCompany?.id;
 
       if (!companyIdentifier) {
-        setError("Review criada, mas nao foi possivel redirecionar a empresa.");
+        showToast(
+          "Review criada, mas nao foi possivel redirecionar a empresa.",
+          "error"
+        );
         setSubmitting(false);
         return;
       }
 
+      showToast("Avaliação publicada com sucesso!", "success");
       router.push(`/companies/${companyIdentifier}`);
     } catch {
-      setError("Erro de conexao. Tente novamente.");
+      showToast("Erro de conexao. Tente novamente.", "error");
       setSubmitting(false);
     }
   }

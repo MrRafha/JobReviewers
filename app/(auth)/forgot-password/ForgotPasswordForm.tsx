@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface ForgotPasswordFormProps {
   success?: boolean;
@@ -21,6 +22,7 @@ export default function ForgotPasswordForm({
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(initialSuccess || false);
   const router = useRouter();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,14 +39,15 @@ export default function ForgotPasswordForm({
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Erro ao enviar email de recuperação");
+        showToast(data.error || "Erro ao enviar email de recuperação", "error");
         return;
       }
 
+      showToast("Email de recuperação enviado! Verifique sua caixa de entrada.", "success");
       setSuccess(true);
       setEmail("");
     } catch {
-      setError("Erro de conexão. Tente novamente.");
+      showToast("Erro de conexão. Tente novamente.", "error");
     } finally {
       setLoading(false);
     }

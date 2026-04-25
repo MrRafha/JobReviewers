@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface ResetPasswordFormProps {
   token: string;
@@ -20,6 +21,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,20 +55,20 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Erro ao redefinir senha");
+        showToast(data.error || "Erro ao redefinir senha", "error");
         return;
       }
 
+      showToast("Senha redefinida com sucesso! Redirecionando...", "success");
       setSuccess(true);
       setPassword("");
       setConfirmPassword("");
 
-      // Redirect to login after 3 seconds
       setTimeout(() => {
         router.push("/login");
       }, 3000);
     } catch {
-      setError("Erro de conexão. Tente novamente.");
+      showToast("Erro de conexão. Tente novamente.", "error");
     } finally {
       setLoading(false);
     }
