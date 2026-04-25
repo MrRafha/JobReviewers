@@ -7,6 +7,7 @@ import CompanyCard from "@/components/CompanyCard";
 import CompanyCardSkeleton from "@/components/CompanyCardSkeleton";
 import { Container, Footer, Navbar } from "@/components/layout";
 import ErrorCard from "@/components/ui/ErrorCard";
+import FadeIn from "@/components/ui/FadeIn";
 import {
   HeroSection,
   BenefitsSection,
@@ -141,81 +142,98 @@ export default function Home() {
       <Navbar />
 
       <main>
-        {/* Hero Section */}
+        {/* Hero — sem FadeIn, aparece imediatamente */}
         <HeroSection
           onSearch={handleHeroSearch}
           searchValue={searchInput}
           onSearchInputChange={setSearchInput}
         />
 
-        {/* Benefits Section */}
-        <BenefitsSection />
+        <FadeIn direction="up" delay={0} duration={700}>
+          <BenefitsSection />
+        </FadeIn>
 
-        {/* Solution Section */}
-        <SolutionSection />
+        <FadeIn direction="up" delay={0} duration={700}>
+          <SolutionSection />
+        </FadeIn>
 
-        {/* How It Works Section */}
-        <HowItWorksSection />
+        <FadeIn direction="up" delay={0} duration={700}>
+          <HowItWorksSection />
+        </FadeIn>
 
-        {/* Social Proof & Security Section */}
-        <SocialProofSection featuredReview={featuredReview} />
+        <FadeIn direction="up" delay={0} duration={700}>
+          <SocialProofSection featuredReview={featuredReview} />
+        </FadeIn>
 
         {/* Companies Section */}
-        <section id="empresas" className="py-16 sm:py-20">
-          <Container>
-            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <h2 className="font-sora text-3xl font-semibold text-[var(--text-primary)] sm:text-4xl">
-                  {activeSearch.trim() ? "Resultados da Busca" : "Empresas em Destaque"}
-                </h2>
-                <p className="mt-2 text-sm text-[var(--text-secondary)] sm:text-base">
-                  {activeSearch.trim()
-                    ? `Mostrando empresas para "${activeSearch.trim()}".`
-                    : "Pesquise e descubra as melhores empresas para trabalhar."}
-                </p>
+        <FadeIn direction="up" delay={0} duration={700}>
+          <section id="empresas" className="py-16 sm:py-20">
+            <Container>
+              <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+                <FadeIn direction="left" delay={100} duration={600}>
+                  <div>
+                    <h2 className="font-sora text-3xl font-semibold text-[var(--text-primary)] sm:text-4xl">
+                      {activeSearch.trim() ? "Resultados da Busca" : "Empresas em Destaque"}
+                    </h2>
+                    <p className="mt-2 text-sm text-[var(--text-secondary)] sm:text-base">
+                      {activeSearch.trim()
+                        ? `Mostrando empresas para "${activeSearch.trim()}".`
+                        : "Pesquise e descubra as melhores empresas para trabalhar."}
+                    </p>
+                  </div>
+                </FadeIn>
+                <FadeIn direction="right" delay={200} duration={600}>
+                  <Link
+                    href="/companies"
+                    className="text-sm font-semibold text-[var(--brand-primary)] transition hover:text-[var(--brand-primary-hover)]"
+                  >
+                    Ver todas as empresas
+                  </Link>
+                </FadeIn>
               </div>
-              <Link
-                href="/companies"
-                className="text-sm font-semibold text-[var(--brand-primary)] transition hover:text-[var(--brand-primary-hover)]"
-              >
-                Ver todas as empresas
-              </Link>
-            </div>
 
-            {loadingCompanies ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <CompanyCardSkeleton key={i} />
-                ))}
-              </div>
-            ) : companiesUnavailable ? (
-              <ErrorCard
-                title="Serviço temporariamente indisponível"
-                description="Não foi possível carregar as empresas neste momento. Tente novamente em alguns instantes."
-                onRetry={handleRetryCompanies}
-                retryLabel="Tentar novamente"
-              />
-            ) : companies.length > 0 ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {companies.map((company) => (
-                  <CompanyCard key={company.id} {...company} />
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] py-14 text-center shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
-                <p className="font-semibold text-[var(--text-primary)]">
-                  Nenhuma empresa encontrada
-                </p>
-                <p className="mt-2 text-sm text-[var(--text-secondary)]">
-                  Tente outro termo de busca ou explore a listagem completa.
-                </p>
-              </div>
-            )}
-          </Container>
-        </section>
+              {loadingCompanies ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <CompanyCardSkeleton key={i} />
+                  ))}
+                </div>
+              ) : companiesUnavailable ? (
+                <FadeIn direction="up" delay={100} duration={500}>
+                  <ErrorCard
+                    title="Serviço temporariamente indisponível"
+                    description="Não foi possível carregar as empresas neste momento. Tente novamente em alguns instantes."
+                    onRetry={handleRetryCompanies}
+                    retryLabel="Tentar novamente"
+                  />
+                </FadeIn>
+              ) : companies.length > 0 ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {companies.map((company, i) => (
+                    <FadeIn key={company.id} direction="up" delay={i * 80} duration={550}>
+                      <CompanyCard {...company} />
+                    </FadeIn>
+                  ))}
+                </div>
+              ) : (
+                <FadeIn direction="up" delay={100} duration={500}>
+                  <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] py-14 text-center shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+                    <p className="font-semibold text-[var(--text-primary)]">
+                      Nenhuma empresa encontrada
+                    </p>
+                    <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                      Tente outro termo de busca ou explore a listagem completa.
+                    </p>
+                  </div>
+                </FadeIn>
+              )}
+            </Container>
+          </section>
+        </FadeIn>
 
-        {/* CTA Final Section */}
-        <CTASection />
+        <FadeIn direction="up" delay={0} duration={700}>
+          <CTASection />
+        </FadeIn>
       </main>
 
       <Footer />

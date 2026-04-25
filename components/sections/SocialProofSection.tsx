@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { Container } from "@/components/layout";
 
 interface FeaturedReview {
@@ -48,11 +51,57 @@ const securityFeatures = [
   },
 ];
 
+const CARD_DELAYS = [0, 380, 720];
+
+const hiddenStyle = (i: number): React.CSSProperties =>
+  i === 0
+    ? { opacity: 0, transform: "scale(0.82)", transformOrigin: "center center" }
+    : { opacity: 0, transform: "translateY(-28px) scale(0.82)", transformOrigin: "center top" };
+
+const visibleStyle: React.CSSProperties = {
+  opacity: 1,
+  transform: "translateY(0px) scale(1)",
+};
+
+const transition =
+  "opacity 420ms cubic-bezier(0.34, 1.2, 0.64, 1), transform 420ms cubic-bezier(0.34, 1.2, 0.64, 1)";
+
 export default function SocialProofSection({
   featuredReview,
 }: SocialProofSectionProps) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [cardVisible, setCardVisible] = useState([false, false, false]);
+  const triggered = useRef(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !triggered.current) {
+          triggered.current = true;
+          observer.disconnect();
+          CARD_DELAYS.forEach((delay, i) => {
+            setTimeout(() => {
+              setCardVisible((prev) => {
+                const next = [...prev];
+                next[i] = true;
+                return next;
+              });
+            }, delay);
+          });
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section id="seguranca" className="py-8 sm:py-12">
+    <section id="seguranca" className="py-8 sm:py-12" ref={sectionRef}>
       <Container>
         <div className="grid gap-12 lg:grid-cols-2 items-center">
           {/* Featured Review */}
@@ -141,6 +190,11 @@ export default function SocialProofSection({
                 <div
                   key={index}
                   className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4 flex gap-4"
+                  style={{
+                    ...(cardVisible[index] ? visibleStyle : hiddenStyle(index)),
+                    transition,
+                    willChange: cardVisible[index] ? "auto" : "opacity, transform",
+                  }}
                 >
                   <div className="text-3xl flex-shrink-0">{feature.icon}</div>
                   <div>
