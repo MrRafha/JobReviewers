@@ -44,3 +44,5 @@ next-env.d.ts
 
 .vscode
 .other
+.claude
+/.claude
