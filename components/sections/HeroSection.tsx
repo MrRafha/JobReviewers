@@ -193,14 +193,22 @@ export default function HeroSection({
               <span className="h-2.5 w-2.5 rounded-full bg-[#22c55e]" aria-hidden="true" />
               <div className="ml-2 h-2 w-20 rounded-full bg-[#e2e8f0]" />
             </div>
-            <div className="space-y-2">
-              <div className="h-2 w-full rounded-full bg-[#e2e8f0]" />
-              <div className="h-2 w-9/12 rounded-full bg-[#e2e8f0]" />
-              <div className="h-2 w-11/12 rounded-full bg-[#e2e8f0]" />
-            </div>
-            <div className="mt-3 flex gap-2">
-              <div className="h-5 w-14 rounded-lg bg-[#dbeafe]" />
-              <div className="h-5 w-10 rounded-lg bg-[#e2e8f0]" />
+            <div className="mt-2 space-y-1.5">
+              <div className="flex items-center gap-2">
+                <div className="h-7 w-7 rounded-lg bg-[#dbeafe] flex-shrink-0 flex items-center justify-center">
+                  <span style={{fontSize:12, color:'var(--brand-primary)', fontWeight:700}}>TC</span>
+                </div>
+                <div>
+                  <p style={{fontSize:11, fontWeight:600, color:'var(--text-primary)', lineHeight:1.2}}>TechCorp Brasil</p>
+                  <p style={{fontSize:10, color:'var(--text-secondary)'}}>São Paulo, SP</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 mt-1">
+                {[1,2,3,4,5].map(s => (
+                  <span key={s} style={{fontSize:10, color: s<=4 ? '#fbbf24' : '#e5e7eb'}}>★</span>
+                ))}
+                <span style={{fontSize:10, fontWeight:600, color:'var(--text-primary)', marginLeft:2}}>4.2</span>
+              </div>
             </div>
           </div>
 
@@ -218,14 +226,15 @@ export default function HeroSection({
               <span className="h-2.5 w-2.5 rounded-full bg-[#22c55e]" aria-hidden="true" />
               <div className="ml-2 h-2 w-16 rounded-full bg-[#dbeafe]" />
             </div>
-            <div className="mt-2 rounded-lg border border-[#dbeafe] bg-[#f8faff] p-2.5">
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-[#dbeafe]" />
-                <div className="space-y-1">
-                  <div className="h-1.5 w-16 rounded-full bg-[#d1d5db]" />
-                  <div className="h-1.5 w-10 rounded-full bg-[#e2e8f0]" />
-                </div>
-                <div className="ml-auto text-xs font-bold text-[#fbbf24]">★ 4.2</div>
+            <div className="mt-1.5 rounded-lg border border-[#dbeafe] bg-[#f0f7ff] p-2">
+              <p style={{fontSize:9, fontWeight:600, color:'var(--brand-primary)', marginBottom:2}}>Nova avaliação</p>
+              <p style={{fontSize:9, color:'var(--text-secondary)', lineHeight:1.4}}>
+                "Ótimo ambiente e cultura forte de eng..."
+              </p>
+              <div className="flex items-center gap-1 mt-1.5">
+                {[1,2,3,4,5].map(s => (
+                  <span key={s} style={{fontSize:9, color:'#fbbf24'}}>★</span>
+                ))}
               </div>
             </div>
           </div>
@@ -260,6 +269,14 @@ export default function HeroSection({
                 </div>
                 <div className="text-2xl font-bold text-[#fbbf24]">★ 4.8</div>
               </div>
+              <div className="mt-3 flex items-end gap-0.5 h-4">
+                {[65,20,8,4,3].map((pct, i) => {
+                  const colors = ['#22c55e','#84cc16','#facc15','#fb923c','#f87171'];
+                  return (
+                    <div key={i} style={{flex:1, borderRadius:2, background:colors[i], opacity:0.8, height:`${Math.max(pct,8)}%`}} />
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -277,9 +294,21 @@ export default function HeroSection({
               <span className="h-2.5 w-2.5 rounded-full bg-[#22c55e]" aria-hidden="true" />
               <div className="ml-2 h-2 w-14 rounded-full bg-[#e2e8f0]" />
             </div>
-            <div className="space-y-1.5">
-              <div className="h-2 w-full rounded-full bg-[#e2e8f0]" />
-              <div className="h-2 w-8/12 rounded-full bg-[#e2e8f0]" />
+            <div className="mt-1.5 space-y-1.5">
+              <div className="rounded-lg bg-[var(--bg-subtle)] p-1.5">
+                <p style={{fontSize:9, fontWeight:600, color:'var(--text-primary)'}}>Nubank</p>
+                <div className="flex items-center gap-1">
+                  <span style={{fontSize:9, color:'#fbbf24'}}>★</span>
+                  <span style={{fontSize:9, color:'var(--text-secondary)'}}>4.7 · 142 avaliações</span>
+                </div>
+              </div>
+              <div className="rounded-lg bg-[var(--bg-subtle)] p-1.5">
+                <p style={{fontSize:9, fontWeight:600, color:'var(--text-primary)'}}>iFood</p>
+                <div className="flex items-center gap-1">
+                  <span style={{fontSize:9, color:'#fbbf24'}}>★</span>
+                  <span style={{fontSize:9, color:'var(--text-secondary)'}}>4.1 · 89 avaliações</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

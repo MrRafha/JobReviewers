@@ -8,6 +8,7 @@ import CompanyCardSkeleton from "@/components/CompanyCardSkeleton";
 import { Container, Footer, Navbar } from "@/components/layout";
 import ErrorCard from "@/components/ui/ErrorCard";
 import FadeIn from "@/components/ui/FadeIn";
+import FloatingCTA from "@/components/ui/FloatingCTA";
 import {
   HeroSection,
   BenefitsSection,
@@ -24,6 +25,8 @@ interface Company {
   location: string;
   rating: number;
   reviewCount: number;
+  ratingDistribution?: number[];
+  recentlyActive?: boolean;
 }
 
 interface FeaturedReview {
@@ -185,9 +188,10 @@ export default function Home() {
                 <FadeIn direction="right" delay={200} duration={600}>
                   <Link
                     href="/companies"
-                    className="text-sm font-semibold text-[var(--brand-primary)] transition hover:text-[var(--brand-primary-hover)]"
+                    className="group text-sm font-semibold text-[var(--brand-primary)] transition hover:text-[var(--brand-primary-hover)] flex items-center gap-1"
                   >
                     Ver todas as empresas
+                    <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
                   </Link>
                 </FadeIn>
               </div>
@@ -210,9 +214,13 @@ export default function Home() {
               ) : companies.length > 0 ? (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {companies.map((company, i) => (
-                    <FadeIn key={company.id} direction="up" delay={i * 80} duration={550}>
+                    <div
+                      key={company.id}
+                      className="company-card-enter"
+                      style={{ animationDelay: `${i * 80}ms` }}
+                    >
                       <CompanyCard {...company} />
-                    </FadeIn>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -236,6 +244,7 @@ export default function Home() {
         </FadeIn>
       </main>
 
+      <FloatingCTA />
       <Footer />
     </div>
   );

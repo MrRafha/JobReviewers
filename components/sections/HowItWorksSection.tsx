@@ -130,7 +130,7 @@ export default function HowItWorksSection() {
   }, []);
 
   return (
-    <section id="como-funciona" className="py-16 sm:py-20" ref={sectionRef}>
+    <section id="como-funciona" className="section-tint py-16 sm:py-20" ref={sectionRef}>
       <Container>
         <h2 className="text-center font-sora text-3xl font-semibold text-[var(--text-primary)] sm:text-4xl">
           Como Funciona

@@ -169,7 +169,7 @@ export default function CTASection() {
             >
               <Link
                 href="/companies"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] text-white px-8 font-semibold transition hover:bg-[var(--brand-primary-hover)]"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] text-white px-8 font-semibold transition hover:bg-[var(--brand-primary-hover)] active:scale-95 active:brightness-95"
               >
                 <span className="material-symbols-rounded text-[20px]" aria-hidden="true">
                   business
@@ -179,7 +179,7 @@ export default function CTASection() {
 
               <Link
                 href="/reviews/new"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-base)] text-[var(--text-primary)] px-8 font-semibold transition hover:bg-[var(--bg-subtle)]"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-base)] text-[var(--text-primary)] px-8 font-semibold transition hover:bg-[var(--bg-subtle)] active:scale-95 active:brightness-95"
               >
                 <span className="material-symbols-rounded text-[20px] text-[var(--brand-primary)]" aria-hidden="true">
                   edit_square

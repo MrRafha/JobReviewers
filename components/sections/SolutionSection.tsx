@@ -37,8 +37,15 @@ export default function SolutionSection() {
             {solutions.map((solution, index) => (
               <div
                 key={index}
-                className="rounded-2xl border border-[var(--border)] bg-[var(--bg-base)] p-6 transition hover:-translate-y-0.5 hover:shadow-md"
+                className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-base)] p-6 transition hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] duration-200"
               >
+                <span
+                  aria-hidden="true"
+                  className="absolute -bottom-2 -right-1 font-sora font-bold text-[var(--text-primary)] select-none pointer-events-none"
+                  style={{ fontSize: '4.5rem', lineHeight: 1, opacity: 0.04 }}
+                >
+                  {String(index + 1).padStart(2, '0')}
+                </span>
                 <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#DBEAFE] text-[var(--brand-primary)]">
                   <span className="material-symbols-rounded" aria-hidden="true">
                     {solution.icon}

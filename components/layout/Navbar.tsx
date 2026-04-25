@@ -9,6 +9,23 @@ import { usePathname } from "next/navigation";
 
 import Button from "@/components/ui/Button";
 
+function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
+  const hash = href.includes("#") ? href.split("#")[1] : null;
+
+  if (!hash) {
+    if (href === "/" && window.location.pathname === "/") {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    return;
+  }
+
+  const el = document.getElementById(hash);
+  if (!el) return;
+  e.preventDefault();
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 export default function Navbar() {
   const { data: session } = useSession();
   const pathname = usePathname();
@@ -40,27 +57,31 @@ export default function Navbar() {
         <div className="hidden items-center gap-6 lg:flex">
           <Link
             href="/"
-            className="text-sm font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
+            onClick={(e) => scrollToSection(e, "/")}
+            className="nav-link-animated text-sm font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
           >
             Inicio
           </Link>
           <Link
             href="/#empresas"
-            className="text-sm font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
+            onClick={(e) => scrollToSection(e, "/#empresas")}
+            className="nav-link-animated text-sm font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
           >
-            Avaliacoes
+            Avaliações
           </Link>
           <Link
             href="/#como-funciona"
-            className="text-sm font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
+            onClick={(e) => scrollToSection(e, "/#como-funciona")}
+            className="nav-link-animated text-sm font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
           >
             Como Funciona
           </Link>
           <Link
             href="/#seguranca"
-            className="text-sm font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
+            onClick={(e) => scrollToSection(e, "/#seguranca")}
+            className="nav-link-animated text-sm font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
           >
-            Seguranca
+            Segurança
           </Link>
         </div>
 
@@ -107,14 +128,17 @@ export default function Navbar() {
           <div className="mx-auto flex w-full max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6">
             {[
               { href: "/", label: "Inicio" },
-              { href: "/#empresas", label: "Avaliacoes" },
+              { href: "/#empresas", label: "Avaliações" },
               { href: "/#como-funciona", label: "Como Funciona" },
-              { href: "/#seguranca", label: "Seguranca" },
+              { href: "/#seguranca", label: "Segurança" },
             ].map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={(e) => {
+                  scrollToSection(e, item.href);
+                  setIsMobileMenuOpen(false);
+                }}
                 className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--text-secondary)] transition hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
               >
                 {item.label}
