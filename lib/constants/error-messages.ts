@@ -6,7 +6,8 @@
 // Database Unavailability
 export const DB_UNAVAILABLE = {
   TITLE: "Serviço temporariamente indisponível",
-  MESSAGE: "Não foi possível carregar os dados neste momento. Tente novamente em alguns instantes.",
+  MESSAGE:
+    "Não foi possível carregar os dados neste momento. Tente novamente em alguns instantes.",
   RETRY_BUTTON: "Tentar novamente",
 } as const;
 
@@ -32,8 +33,16 @@ export const AUTH_ERRORS = {
   EMAIL_SENT: "Verifique seu email para instruções de recuperação de senha.",
   EMAIL_SENT_DETAIL: "Um link de recuperação foi enviado. Válido por 1 hora.",
   TOKEN_INVALID: "Link de recuperação inválido ou expirado.",
-  PASSWORD_RESET_SUCCESS: "Senha redefinida com sucesso! Faça login com sua nova senha.",
+  PASSWORD_RESET_SUCCESS:
+    "Senha redefinida com sucesso! Faça login com sua nova senha.",
   PASSWORD_RESET_FAILED: "Erro ao redefinir senha. Tente novamente.",
+} as const;
+
+export const RATE_LIMIT_ERRORS = {
+  REVIEW_LIMIT_EXCEEDED: "Limite de requisições excedido",
+  REVIEW_LIMIT_DETAIL: "Você pode enviar 1 review por hora",
+  SPAM_DETECTED: "Sua review contém padrões suspeitos de spam",
+  FLOOD_DETECTED: "Múltiplas tentativas detectadas em curto período",
 } as const;
 
 // Success messages

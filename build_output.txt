@@ -1,0 +1,66 @@
+﻿
+> devreview@0.1.0 build
+> next build
+
+Ôû▓ Next.js 16.1.2 (Turbopack)
+- Environments: .env.local, .env
+
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 3.9s
+  Running TypeScript ...
+  Collecting page data using 11 workers ...
+node.exe : (node:18656) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors 
+that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+No linha:1 caractere:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:18656) [D...ulnerabilities.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  Generating static pages using 11 workers (0/24) ...
+  Generating static pages using 11 workers (6/24) 
+  Generating static pages using 11 workers (12/24) 
+  Generating static pages using 11 workers (18/24) 
+Ô£ô Generating static pages using 11 workers (24/24) in 349.1ms
+  Finalizing page optimization ...
+
+Route (app)
+Ôöî Ôùï /
+Ôö£ Ôùï /_not-found
+Ôö£ Ôùï /admin
+Ôö£ Ôùï /admin/denuncias
+Ôö£ Ôùï /admin/logs
+Ôö£ Ôùï /admin/reports
+Ôö£ Ôùï /admin/usuarios
+Ôö£ ãÆ /api/admin/logs
+Ôö£ ãÆ /api/admin/notes
+Ôö£ ãÆ /api/admin/notes/[id]
+Ôö£ ãÆ /api/admin/reports
+Ôö£ ãÆ /api/admin/reports/[id]
+Ôö£ ãÆ /api/admin/reports/[id]/claim
+Ôö£ ãÆ /api/admin/reviews/[id]
+Ôö£ ãÆ /api/admin/stats
+Ôö£ ãÆ /api/admin/users
+Ôö£ ãÆ /api/admin/users/[id]
+Ôö£ ãÆ /api/auth/[...nextauth]
+Ôö£ ãÆ /api/auth/forgot-password
+Ôö£ ãÆ /api/auth/register
+Ôö£ ãÆ /api/auth/reset-password
+Ôö£ ãÆ /api/companies
+Ôö£ ãÆ /api/companies/[slug]
+Ôö£ ãÆ /api/reports
+Ôö£ ãÆ /api/reviews
+Ôö£ ãÆ /companies/[id]
+Ôö£ ãÆ /forgot-password
+Ôö£ ãÆ /login
+Ôö£ Ôùï /register
+Ôö£ ãÆ /reset-password/[token]
+Ôöö ãÆ /reviews/new
+
+
+ãÆ Proxy (Middleware)
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+

@@ -3,16 +3,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { ContractType, Seniority, WorkMode } from "@prisma/client";
 
 import { auth } from "@/auth";
+import {
+  DB_UNAVAILABLE,
+  RATE_LIMIT_ERRORS,
+} from "@/lib/constants/error-messages";
+import { validateReviewRateLimit } from "@/lib/middleware/rate-limit";
 import { prisma } from "@/lib/prisma";
-import { isDatabaseUnavailableError } from "@/lib/services/db-errors";
+import { createAdminLog } from "@/lib/services/adminLog";
 import { findOrCreateCompanyByName } from "@/lib/services/companies";
+import { isDatabaseUnavailableError } from "@/lib/services/db-errors";
+import {
+  recordReviewAttempt,
+  recordSpamReviewHash,
+} from "@/lib/services/redis-manager";
 import {
   createReview,
   getRecentPublicReviews,
   getReviewsByCompany,
 } from "@/lib/services/reviews";
-import { DB_UNAVAILABLE } from "@/lib/constants/error-messages";
 import { createReviewSchema } from "@/lib/validations/review";
+import { detectSpam } from "@/lib/validations/spam-detection";
 
 const VALID_SENIORITIES = ["JR", "PL", "SR"] as const;
 const VALID_CONTRACT_TYPES = ["CLT", "PJ", "ESTAGIO", "FREELA"] as const;
@@ -49,7 +59,8 @@ export async function GET(request: NextRequest) {
       const parsedPage = pageParam ? parseInt(pageParam, 10) : 1;
       const parsedLimit = limitParam ? parseInt(limitParam, 10) : 10;
 
-      const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+      const page =
+        Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
       const limit =
         Number.isFinite(parsedLimit) && parsedLimit > 0
           ? Math.min(parsedLimit, 50)
@@ -151,12 +162,50 @@ export async function POST(request: NextRequest) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
+
   try {
+    const rateLimitResult = await validateReviewRateLimit(
+      request,
+      session.user.id
+    );
+    if (!rateLimitResult.allowed) {
+      await createAdminLog({
+        adminId: session.user.id,
+        action: "RATE_LIMIT_BLOCK",
+        targetType: "REVIEW",
+        targetId: session.user.id,
+        meta: JSON.stringify({
+          userId: session.user.id,
+          ip: rateLimitResult.ip,
+          reason: rateLimitResult.reason,
+          retryAfter: rateLimitResult.retryAfter,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      return NextResponse.json(
+        {
+          error: RATE_LIMIT_ERRORS.REVIEW_LIMIT_EXCEEDED,
+          details:
+            rateLimitResult.reason === "FLOOD_DETECTED"
+              ? RATE_LIMIT_ERRORS.FLOOD_DETECTED
+              : RATE_LIMIT_ERRORS.REVIEW_LIMIT_DETAIL,
+          retryAfter: rateLimitResult.retryAfter ?? 0,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateLimitResult.retryAfter ?? 0),
+          },
+        }
+      );
+    }
+
     const body = await request.json();
 
     const parsed = createReviewSchema.safeParse(body);
     if (!parsed.success) {
-      const message = parsed.error.errors[0]?.message ?? "Dados inválidos";
+      const message = parsed.error.issues[0]?.message ?? "Dados inválidos";
       return NextResponse.json({ error: message }, { status: 400 });
     }
     const {
@@ -172,7 +221,34 @@ export async function POST(request: NextRequest) {
       cons,
     } = parsed.data;
 
-    const numericRating = ratingOverall;
+    const reviewText = `${pros}\n\n${cons}`;
+    const spamResult = detectSpam(reviewText);
+    if (spamResult.isSpam) {
+      await recordSpamReviewHash(session.user.id, spamResult.hash);
+      await createAdminLog({
+        adminId: session.user.id,
+        action: "SPAM_DETECTED",
+        targetType: "REVIEW",
+        targetId: session.user.id,
+        meta: JSON.stringify({
+          userId: session.user.id,
+          ip: rateLimitResult.ip,
+          reason: spamResult.reason,
+          hash: spamResult.hash,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      return NextResponse.json(
+        {
+          error: RATE_LIMIT_ERRORS.SPAM_DETECTED,
+          details: spamResult.reason,
+        },
+        {
+          status: 429,
+        }
+      );
+    }
 
     let resolvedCompanyId: string;
 
@@ -202,10 +278,12 @@ export async function POST(request: NextRequest) {
       contractType: contractType as ContractType,
       workMode: workMode as WorkMode,
       year,
-      ratingOverall: numericRating,
+      ratingOverall: ratingOverall,
       pros,
       cons,
     });
+
+    await recordReviewAttempt(session.user.id, rateLimitResult.ip ?? "unknown");
 
     return NextResponse.json(review, { status: 201 });
   } catch (error) {
