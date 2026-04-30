@@ -10,15 +10,12 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-3">
             <Image
-              src="/logo.png"
+              src="/JobR_logo.png"
               alt="JobReviewers"
-              width={52}
-              height={38}
-              className="h-10 w-13"
+              width={180}
+              height={50}
+              className="h-10 w-auto"
             />
-            <span className="font-sora text-xl font-bold text-[var(--text-primary)]">
-              JobReviewers
-            </span>
           </div>
           <p className="mt-4 max-w-md text-sm leading-relaxed text-[var(--text-secondary)]">
             Plataforma para avaliacoes anonimas e moderadas sobre empresas,
@@ -63,6 +60,14 @@ export default function Footer() {
                 Criar conta
               </Link>
             </li>
+            <li>
+              <Link
+                href="/sobre"
+                className="text-sm text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
+              >
+                Sobre & Regras
+              </Link>
+            </li>
           </ul>
         </div>
 
@@ -89,7 +94,7 @@ export default function Footer() {
             </li>
             <li>
               <Link
-                href="/guidelines"
+                href="/sobre"
                 className="text-sm text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
               >
                 Diretrizes

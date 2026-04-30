@@ -95,11 +95,11 @@ export default function RegisterPage() {
       <div className="mb-8 text-center">
         <Link href="/" className="inline-block mb-6">
           <Image
-            src="/logo.png"
+            src="/JobR_logo.png"
             alt="JobReviewers Logo"
-            width={112}
-            height={80}
-            className="h-20 w-28 mx-auto transition-transform hover:scale-105"
+            width={220}
+            height={60}
+            className="h-14 w-auto mx-auto transition-transform hover:scale-105"
           />
         </Link>
         <h1 className="font-sora text-3xl font-bold text-[var(--text-primary)] mb-2">

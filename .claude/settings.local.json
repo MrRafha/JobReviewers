@@ -16,7 +16,15 @@
       "Bash(npm install *)",
       "Bash(node -e \"const {z} = require\\('./node_modules/zod'\\); const s = z.object\\({x: z.string\\(\\)}\\); const r = s.safeParse\\({}\\); console.log\\(Object.keys\\(r.error\\)\\)\")",
       "Bash(node *)",
-      "Bash(npx prisma *)"
+      "Bash(npx prisma *)",
+      "PowerShell(gh issue *)",
+      "Bash(gh api *)",
+      "PowerShell(cd \"C:\\\\Users\\\\Rafhael\\\\Desktop\\\\PROJETOS\\\\dev-review-anon\\\\devreview\" ; git diff origin/development...origin/main -- app/api/reviews/route.ts)",
+      "PowerShell(cd \"C:\\\\Users\\\\Rafhael\\\\Desktop\\\\PROJETOS\\\\dev-review-anon\\\\devreview\" ; git diff -- app/api/reviews/route.ts lib/validations/review.ts package.json)",
+      "Bash(dir \"C:\\\\Users\\\\Rafhael\\\\Desktop\\\\PROJETOS\\\\dev-review-anon\\\\devreview\\\\public\")",
+      "Bash(findstr /i favicon)",
+      "Bash(dir \"C:\\\\Users\\\\Rafhael\\\\Desktop\\\\PROJETOS\\\\dev-review-anon\\\\devreview\\\\app\")",
+      "PowerShell(auth *)"
     ]
   }
 }

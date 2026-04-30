@@ -9,6 +9,7 @@ import {
 } from "unique-names-generator";
 
 import { prisma } from "@/lib/prisma";
+import { applyAutoBadges } from "@/lib/services/badges";
 
 const numberDictionary = NumberDictionary.generate({ min: 10, max: 999 });
 
@@ -78,6 +79,8 @@ export async function POST(req: Request) {
         password: hashedPassword,
       },
     });
+
+    await applyAutoBadges(user.id, user.createdAt);
 
     return NextResponse.json(
       { message: "Conta criada com sucesso!", userId: user.id },

@@ -22,6 +22,11 @@ export const metadata: Metadata = {
   title: "JobReviewers | Avaliações Anônimas de Empresas",
   description:
     "Descubra como é trabalhar nas empresas através de avaliações anônimas e moderadas de profissionais.",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

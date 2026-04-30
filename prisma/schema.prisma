@@ -39,6 +39,7 @@ model User {
   sessions       Session[]
   adminLogs      AdminLog[]  @relation("AdminActions")
   adminNotes     AdminNote[] @relation("AdminNotes")
+  userBadges     UserBadge[]
 }
 
 model Account {
@@ -159,6 +160,33 @@ model AdminNote {
 
   @@index([authorId])
   @@index([createdAt])
+}
+
+enum BadgeAutoRule {
+  NEW_ACCOUNT
+}
+
+model Badge {
+  id          String         @id @default(uuid())
+  name        String
+  description String
+  iconUrl     String
+  color       String
+  autoRule    BadgeAutoRule?
+  createdAt   DateTime       @default(now())
+
+  userBadges  UserBadge[]
+}
+
+model UserBadge {
+  userId     String
+  badgeId    String
+  grantedAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge      Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
 }
 
 model AdminLog {

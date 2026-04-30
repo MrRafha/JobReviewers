@@ -56,12 +56,21 @@ const fallbackReview: FeaturedReview = {
 export default function Home() {
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
+  const [activeLocation, setActiveLocation] = useState("");
+  const [locations, setLocations] = useState<string[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
   const [companiesUnavailable, setCompaniesUnavailable] = useState(false);
   const [featuredReview, setFeaturedReview] = useState<FeaturedReview | null>(
     null
   );
+
+  useEffect(() => {
+    fetch("/api/companies/locations")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setLocations(data); })
+      .catch(() => {});
+  }, []);
 
   // Fetch companies based on active search
   useEffect(() => {
@@ -70,10 +79,14 @@ export default function Home() {
       setCompaniesUnavailable(false);
 
       try {
-        const query = activeSearch.trim()
-          ? `?search=${encodeURIComponent(activeSearch.trim())}`
-          : "?limit=6";
-        const res = await fetch(`/api/companies${query}`);
+        const params = new URLSearchParams();
+        if (activeSearch.trim()) {
+          params.set("search", activeSearch.trim());
+        } else {
+          params.set("limit", "6");
+          if (activeLocation) params.set("location", activeLocation);
+        }
+        const res = await fetch(`/api/companies?${params.toString()}`);
 
         if (!res.ok) {
           if (res.status === 503) {
@@ -92,7 +105,7 @@ export default function Home() {
     }
 
     fetchCompanies();
-  }, [activeSearch]);
+  }, [activeSearch, activeLocation]);
 
   // Fetch featured review on mount
   useEffect(() => {
@@ -128,10 +141,14 @@ export default function Home() {
   };
 
   const handleRetryCompanies = () => {
-    const query = activeSearch.trim()
-      ? `?search=${encodeURIComponent(activeSearch.trim())}`
-      : "?limit=6";
-    fetch(`/api/companies${query}`)
+    const params = new URLSearchParams();
+    if (activeSearch.trim()) {
+      params.set("search", activeSearch.trim());
+    } else {
+      params.set("limit", "6");
+      if (activeLocation) params.set("location", activeLocation);
+    }
+    fetch(`/api/companies?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => {
         setCompanies(data);
@@ -186,13 +203,27 @@ export default function Home() {
                   </div>
                 </FadeIn>
                 <FadeIn direction="right" delay={200} duration={600}>
-                  <Link
-                    href="/companies"
-                    className="group text-sm font-semibold text-[var(--brand-primary)] transition hover:text-[var(--brand-primary-hover)] flex items-center gap-1"
-                  >
-                    Ver todas as empresas
-                    <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
-                  </Link>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {locations.length > 0 && !activeSearch.trim() && (
+                      <select
+                        value={activeLocation}
+                        onChange={(e) => setActiveLocation(e.target.value)}
+                        className="h-10 rounded-xl border border-[var(--border)] bg-[var(--bg-base)] px-3 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-opacity-20 focus:border-[var(--brand-primary)] transition-all"
+                      >
+                        <option value="">Todas as cidades</option>
+                        {locations.map((loc) => (
+                          <option key={loc} value={loc}>{loc}</option>
+                        ))}
+                      </select>
+                    )}
+                    <Link
+                      href="/companies"
+                      className="group text-sm font-semibold text-[var(--brand-primary)] transition hover:text-[var(--brand-primary-hover)] flex items-center gap-1"
+                    >
+                      Ver todas as empresas
+                      <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                    </Link>
+                  </div>
                 </FadeIn>
               </div>
 

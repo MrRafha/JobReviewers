@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const search = searchParams.get("search");
     const limit = searchParams.get("limit");
+    const location = searchParams.get("location");
 
     let companies;
 
@@ -16,7 +17,8 @@ export async function GET(request: NextRequest) {
       companies = await searchCompanies(search);
     } else {
       companies = await getAllCompanies(
-        limit ? parseInt(limit, 10) : undefined
+        limit ? parseInt(limit, 10) : undefined,
+        location ?? undefined
       );
     }
 
