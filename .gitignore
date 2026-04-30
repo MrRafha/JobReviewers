@@ -51,4 +51,3 @@ next-env.d.ts
 TEST_RESULTS.md
 node_modules/
 .claude/settings.local.json
-.claude/settings.local.json
