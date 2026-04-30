@@ -17,6 +17,7 @@ export default function AdminLayout({
     { href: "/admin/denuncias", label: "Denúncias", icon: "flag" },
     { href: "/admin/logs", label: "Logs", icon: "history" },
     { href: "/admin/usuarios", label: "Usuários", icon: "group" },
+    { href: "/admin/badges", label: "Badges", icon: "military_tech" },
   ];
 
   return (

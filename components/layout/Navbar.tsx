@@ -50,15 +50,12 @@ export default function Navbar() {
           className="flex items-center gap-2 transition-transform hover:scale-[1.01]"
         >
           <Image
-            src="/logo.png"
+            src="/JobR_logo.png"
             alt="JobReviewers"
-            width={42}
-            height={30}
-            className="h-8 w-11"
+            width={160}
+            height={44}
+            className="h-9 w-auto"
           />
-          <span className="font-sora text-xl font-bold text-[var(--text-primary)]">
-            JobReviewers
-          </span>
         </Link>
 
         <div className="hidden items-center gap-6 lg:flex">
@@ -94,14 +91,22 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-2 lg:flex">
           {session?.user ? (
-            <Button
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={handleSignOut}
-            >
-              Sair
-            </Button>
+            <>
+              <Link
+                href="/perfil"
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-[var(--text-primary)] transition hover:bg-[var(--bg-subtle)]"
+              >
+                Meu Perfil
+              </Link>
+              <Button
+                type="button"
+                variant="secondary"
+                size="md"
+                onClick={handleSignOut}
+              >
+                Sair
+              </Button>
+            </>
           ) : (
             <>
               <Link
@@ -153,18 +158,26 @@ export default function Navbar() {
             ))}
 
             {session?.user ? (
-              <Button
-                type="button"
-                variant="secondary"
-                size="md"
-                className="mt-2"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  handleSignOut();
-                }}
-              >
-                Sair
-              </Button>
+              <div className="mt-2 flex flex-col gap-2">
+                <Link
+                  href="/perfil"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] text-sm font-semibold text-[var(--text-primary)]"
+                >
+                  Meu Perfil
+                </Link>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleSignOut();
+                  }}
+                >
+                  Sair
+                </Button>
+              </div>
             ) : (
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <Link

@@ -155,10 +155,37 @@ export async function getCompanyBySlug(slug: string) {
   }
 }
 
-export async function getAllCompanies(limit?: number) {
+export async function getAvailableLocations(): Promise<string[]> {
+  const rows = await prisma.company.findMany({
+    where: {
+      AND: [{ city: { not: null } }, { state: { not: null } }],
+    },
+    select: { city: true, state: true },
+    distinct: ["city", "state"],
+    orderBy: [{ state: "asc" }, { city: "asc" }],
+  });
+
+  return rows
+    .filter((r) => r.city && r.state)
+    .map((r) => `${r.city}, ${r.state}`);
+}
+
+export async function getAllCompanies(limit?: number, location?: string) {
   try {
+    const locationFilter = location
+      ? (() => {
+          const parts = location.split(",").map((s) => s.trim());
+          const city = parts[0];
+          const state = parts[1];
+          return state
+            ? { city: { equals: city, mode: "insensitive" as const }, state: { equals: state, mode: "insensitive" as const } }
+            : { OR: [{ city: { contains: city, mode: "insensitive" as const } }, { state: { contains: city, mode: "insensitive" as const } }] };
+        })()
+      : undefined;
+
     const companies = await prisma.company.findMany({
       take: limit,
+      where: locationFilter,
       include: {
         reviews: {
           where: { hidden: false },

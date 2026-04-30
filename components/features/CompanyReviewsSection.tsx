@@ -171,7 +171,7 @@ export default function CompanyReviewsSection({
           className={`space-y-6 transition-opacity duration-200 ${isPending ? "opacity-50" : "opacity-100"}`}
         >
           {reviews.map((review, index) => (
-            <div key={index}>
+            <div key={index} id={`review-${review.reviewId}`}>
               <ReviewCard {...review} />
 
               {reportingReviewId === review.reviewId ? (

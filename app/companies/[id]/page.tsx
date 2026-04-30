@@ -129,10 +129,10 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
               <div className="bg-white rounded-2xl p-4 w-24 h-24 flex items-center justify-center shadow-lg">
                 <Image
-                  src="/logo.png"
+                  src="/JobR_logo.png"
                   alt={company.name}
-                  width={64}
-                  height={64}
+                  width={96}
+                  height={40}
                   className="object-contain"
                 />
               </div>
