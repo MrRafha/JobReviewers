@@ -24,7 +24,8 @@
       "Bash(dir \"C:\\\\Users\\\\Rafhael\\\\Desktop\\\\PROJETOS\\\\dev-review-anon\\\\devreview\\\\public\")",
       "Bash(findstr /i favicon)",
       "Bash(dir \"C:\\\\Users\\\\Rafhael\\\\Desktop\\\\PROJETOS\\\\dev-review-anon\\\\devreview\\\\app\")",
-      "PowerShell(auth *)"
+      "PowerShell(auth *)",
+      "PowerShell(cd \"C:\\\\Users\\\\Rafhael\\\\Desktop\\\\PROJETOS\\\\dev-review-anon\\\\devreview\" ; git show 4026867 -- .env.local)"
     ]
   }
 }
