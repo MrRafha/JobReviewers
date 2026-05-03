@@ -13,7 +13,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/adapter-pg": "^6.19.0",
     "@prisma/client": "^6.19.2",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
